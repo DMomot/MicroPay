@@ -24,20 +24,37 @@ body {
 }
 
 .header {
-  text-align: center;
   color: white;
   margin-bottom: 30px;
 }
 
-.header h1 {
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.header-text {
+  text-align: center;
+  flex: 1;
+}
+
+.header-text h1 {
   font-size: 2.5rem;
   font-weight: 600;
   margin-bottom: 5px;
 }
 
-.header p {
+.header-text p {
   opacity: 0.8;
   font-size: 1.1rem;
+}
+
+.wallet-section {
+  position: absolute;
+  top: 20px;
+  right: 20px;
 }
 
 .chat-container {
@@ -208,7 +225,6 @@ body {
 
 /* MetaMask Button Styles */
 .wallet-info {
-  margin-top: 20px;
   background: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 16px;
@@ -219,7 +235,6 @@ body {
   gap: 15px;
   backdrop-filter: blur(20px);
   max-width: 280px;
-  margin: 20px auto 0;
 }
 
 .wallet-info span {
@@ -252,7 +267,7 @@ body {
   box-shadow: none !important;
 }
 
-.header button {
+.wallet-section button {
   background: linear-gradient(135deg, #667eea, #764ba2);
   border: none;
   color: white;
@@ -262,13 +277,12 @@ body {
   font-size: 14px;
   font-weight: 600;
   transition: all 0.3s ease;
-  margin-top: 20px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
-.header button:hover {
+.wallet-section button:hover {
   background: linear-gradient(135deg, #764ba2, #667eea);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);

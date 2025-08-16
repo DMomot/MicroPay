@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import { WalletConnection } from './WalletConnection';
 import './App.css';
 
 interface Message {
@@ -10,10 +10,6 @@ interface Message {
 }
 
 function App() {
-  const { address, isConnected } = useAccount()
-  const { connect, connectors } = useConnect()
-  const { disconnect } = useDisconnect()
-
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
@@ -49,34 +45,58 @@ function App() {
     setIsLoading(true);
 
     try {
+      // Step 1: Summarize user message to short prompt
       const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
-      const response = await fetch(`${apiUrl}/api/chat`, {
+      const summarizeResponse = await fetch(`${apiUrl}/api/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message: inputMessage }),
+        body: JSON.stringify({ 
+          message: `You are a prompt optimizer. Take this user message and reduce it to a short, clear search prompt (max 10 words) that captures the core intent. Focus on key terms and actions. User message: "${inputMessage}"` 
+        }),
       });
 
-      if (!response.ok) {
-        throw new Error('Ошибка сети');
+      if (!summarizeResponse.ok) {
+        throw new Error('Failed to summarize prompt');
       }
 
-      const data = await response.json();
+      const summarizeData = await summarizeResponse.json();
+      const shortPrompt = summarizeData.response;
+
+      // Step 2: Search for agents with the short prompt
+      const searchResponse = await fetch('http://ai_finder.railway.internal/search', {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: shortPrompt,
+          max_results: 10,
+          min_rating: 0.5
+        }),
+      });
+
+      if (!searchResponse.ok) {
+        throw new Error('Failed to search agents');
+      }
+
+      const agentsData = await searchResponse.json();
       
       const botMessage: Message = {
         id: Date.now() + 1,
-        content: data.response,
+        content: `Found ${agentsData.length} suitable agents for: "${shortPrompt}"\n\n${JSON.stringify(agentsData, null, 2)}`,
         isUser: false,
         timestamp: new Date()
       };
 
       setMessages(prev => [...prev, botMessage]);
     } catch (error) {
-      console.error('Ошибка:', error);
+      console.error('Error:', error);
       const errorMessage: Message = {
         id: Date.now() + 1,
-        content: 'Извините, произошла ошибка. Попробуйте еще раз.',
+        content: 'Sorry, an error occurred. Please try again.',
         isUser: false,
         timestamp: new Date()
       };
@@ -98,17 +118,7 @@ function App() {
         <header className="header">
           <h1>AI Бот</h1>
           <p>Powered by Gemini</p>
-          
-          {isConnected ? (
-            <div className="wallet-info">
-              <span>{address?.slice(0, 6)}...{address?.slice(-4)}</span>
-              <button onClick={() => disconnect()}>Отключить</button>
-            </div>
-          ) : (
-            <button onClick={() => connect({ connector: connectors[0] })}>
-              Подключить MetaMask
-            </button>
-          )}
+          <WalletConnection />
         </header>
         
         <div className="chat-container">

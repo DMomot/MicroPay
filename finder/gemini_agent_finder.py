@@ -9,52 +9,52 @@ from bazaar_scout import BazaarScout
 load_dotenv()
 
 class GeminiAgentFinder:
-    """AI агент с Gemini для умного поиска x402 агентов по промпту"""
+    """AI agent with Gemini for smart x402 agent search by prompt"""
     
     def __init__(self, min_rating: float = 0.5, refresh_interval_minutes: int = 60):
         self.scout = BazaarScout()
         self.agents_cache = None
-        self.cache_timestamp = 0  # Время последнего обновления кэша
-        self.min_rating = min_rating  # Минимальный рейтинг для попадания в выборку
-        self.refresh_interval = refresh_interval_minutes * 60  # Конвертируем в секунды
+        self.cache_timestamp = 0  # Last cache update timestamp
+        self.min_rating = min_rating  # Minimum rating for inclusion
+        self.refresh_interval = refresh_interval_minutes * 60  # Convert to seconds
         
-        # Настройка Gemini
+        # Gemini setup
         api_key = os.getenv('GEMINI_API_KEY')
         if not api_key:
-            raise ValueError("GEMINI_API_KEY не найден в переменных окружения!")
+            raise ValueError("GEMINI_API_KEY not found in environment variables!")
         
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('gemini-pro')
+        self.model = genai.GenerativeModel('gemini-2.0-flash')
         
     def load_agents(self):
-        """Загружает и кэширует список агентов с проверкой времени обновления"""
+        """Loads and caches agent list with refresh time check"""
         current_time = time.time()
         
-        # Проверяем нужно ли обновить кэш
+        # Check if cache needs refresh
         if (self.agents_cache is None or 
             current_time - self.cache_timestamp > self.refresh_interval):
             
-            print(f"🔄 Загружаем агентов из Bazaar... (интервал: {self.refresh_interval//60} мин)")
+            print(f"🔄 Loading agents from Bazaar... (interval: {self.refresh_interval//60} min)")
             data = self.scout.get_all_agents()
             if data and 'items' in data:
-                # Фильтруем только агентов с описанием
+                # Filter only agents with description
                 self.agents_cache = [
                     agent for agent in data['items']
                     if self._has_description(agent)
                 ]
                 self.cache_timestamp = current_time
-                print(f"✅ Загружено {len(self.agents_cache)} агентов с описанием")
+                print(f"✅ Loaded {len(self.agents_cache)} agents with description")
             else:
                 self.agents_cache = []
-                print("❌ Не удалось загрузить агентов")
+                print("❌ Failed to load agents")
         else:
             remaining_time = int((self.refresh_interval - (current_time - self.cache_timestamp)) / 60)
-            print(f"📋 Используем кэш агентов (обновление через {remaining_time} мин)")
+            print(f"📋 Using cached agents (refresh in {remaining_time} min)")
             
         return self.agents_cache
     
     def _has_description(self, agent):
-        """Проверяет есть ли описание у агента"""
+        """Check if agent has description"""
         accepts = agent.get('accepts', [])
         if not accepts:
             return False
@@ -63,17 +63,17 @@ class GeminiAgentFinder:
         return len(description) > 0
     
     def find_agents_by_prompt(self, prompt: str) -> List[Dict]:
-        """Находит агентов по промпту с помощью Gemini"""
+        """Find agents by prompt using Gemini"""
         agents = self.load_agents()
         if not agents:
             return []
         
-        print(f"🧠 Анализируем промпт с Gemini: '{prompt}'")
+        print(f"🧠 Analyzing prompt with Gemini: '{prompt}'")
         
-        # Анализируем каждого агента с помощью Gemini
+        # Analyze each agent with Gemini
         matching_agents = []
         for i, agent in enumerate(agents):
-            print(f"🔍 Анализируем агента {i+1}/{len(agents)}", end='\r')
+            print(f"🔍 Analyzing agent {i+1}/{len(agents)}", end='\r')
             
             rating = self._rate_agent_with_gemini(agent, prompt)
             
@@ -81,69 +81,104 @@ class GeminiAgentFinder:
                 agent_info = self._format_agent_info(agent, rating)
                 matching_agents.append(agent_info)
         
-        print(f"\n✅ Найдено {len(matching_agents)} агентов с рейтингом >= {self.min_rating}")
+        print(f"\n✅ Found {len(matching_agents)} agents with rating >= {self.min_rating}")
         
-        # Сортируем по рейтингу
+        # Sort by rating
         matching_agents.sort(key=lambda x: x['rating'], reverse=True)
         
         return matching_agents
     
     def _rate_agent_with_gemini(self, agent: Dict, prompt: str) -> float:
-        """Оценивает соответствие агента промпту с помощью Gemini"""
+        """Rate agent relevance to prompt using Gemini"""
         try:
             accepts = agent.get('accepts', [{}])[0]
             resource = agent.get('resource', '')
             description = accepts.get('description', '')
             
-            # Создаем промпт для Gemini
+            # Create prompt for Gemini with reasoning request
             analysis_prompt = f"""
-Анализируй насколько подходит этот x402 агент для запроса пользователя.
+Analyze how well this x402 agent matches the user request.
 
-ЗАПРОС ПОЛЬЗОВАТЕЛЯ: "{prompt}"
+USER REQUEST: "{prompt}"
 
-АГЕНТ:
-- Ресурс: {resource}
-- Описание: {description}
+AGENT:
+- Resource: {resource}
+- Description: {description}
 
-ЗАДАЧА:
-Оцени от 0.0 до 1.0 насколько этот агент подходит для выполнения запроса пользователя.
+TASK:
+Rate from 0.0 to 1.0 how well this agent fits the user request.
+ALSO provide your reasoning.
 
-КРИТЕРИИ ОЦЕНКИ:
-- 1.0 = Идеально подходит, точно выполнит задачу
-- 0.8-0.9 = Очень хорошо подходит
-- 0.6-0.7 = Хорошо подходит, но есть нюансы  
-- 0.4-0.5 = Частично подходит
-- 0.1-0.3 = Слабо подходит
-- 0.0 = Совсем не подходит
+RATING CRITERIA:
+- 1.0 = Perfect match, will definitely complete the task
+- 0.8-0.9 = Very good match
+- 0.6-0.7 = Good match, but some nuances
+- 0.4-0.5 = Partial match
+- 0.1-0.3 = Weak match
+- 0.0 = No match at all
 
-Учитывай:
-- Семантическое соответствие функционала агента и запроса
-- Ключевые слова в описании
-- Тип задачи (поиск, генерация, анализ, API и т.д.)
+Consider:
+- Semantic correspondence between agent functionality and request
+- Keywords in description
+- Task type (search, generation, analysis, API, etc.)
 
-ОТВЕТ: только число от 0.0 до 1.0, ничего больше.
+RESPONSE FORMAT:
+REASONING: [explain your analysis in 1-2 sentences]
+RATING: [number from 0.0 to 1.0]
 """
             
             response = self.model.generate_content(analysis_prompt)
-            rating_text = response.text.strip()
+            response_text = response.text.strip()
             
-            # Извлекаем число из ответа
+            # Parse reasoning and rating from response
             try:
-                rating = float(rating_text)
-                # Ограничиваем диапазон 0-1
+                reasoning = ""
+                rating = 0.0
+                
+                lines = response_text.split('\n')
+                for line in lines:
+                    line = line.strip()
+                    if line.startswith('REASONING:'):
+                        reasoning = line.replace('REASONING:', '').strip()
+                    elif line.startswith('RATING:'):
+                        rating_str = line.replace('RATING:', '').strip()
+                        rating = float(rating_str)
+                
+                # Limit rating to 0-1 range
                 rating = max(0.0, min(1.0, rating))
+                
+                # Print reasoning to console
+                if rating >= self.min_rating:
+                    print(f"🤖 {resource}")
+                    print(f"   💭 Reasoning: {reasoning}")
+                    print(f"   ⭐ Rating: {rating}")
+                
                 return rating
+                
             except ValueError:
-                # Если не смогли распарсить, возвращаем 0
-                print(f"⚠️ Не удалось распарсить рейтинг: {rating_text}")
+                # If parsing fails, try to extract just the number
+                try:
+                    # Look for any number in the response
+                    import re
+                    numbers = re.findall(r'(\d+\.?\d*)', response_text)
+                    if numbers:
+                        rating = float(numbers[-1])  # Take the last number found
+                        rating = max(0.0, min(1.0, rating))
+                        if rating >= self.min_rating:
+                            print(f"🤖 {resource} - Rating: {rating} (parsing fallback)")
+                        return rating
+                except:
+                    pass
+                
+                print(f"⚠️ Could not parse rating from: {response_text}")
                 return 0.0
                 
         except Exception as e:
-            print(f"❌ Ошибка анализа с Gemini: {e}")
+            print(f"❌ Error analyzing with Gemini: {e}")
             return 0.0
     
     def _format_agent_info(self, agent: Dict, rating: float) -> Dict:
-        """Форматирует информацию об агенте"""
+        """Format agent information"""
         accepts = agent.get('accepts', [{}])[0]
         
         return {
@@ -155,23 +190,23 @@ class GeminiAgentFinder:
             'asset_address': accepts.get('asset'),
             'pay_to_address': accepts.get('payTo'),
             'last_updated': agent.get('lastUpdated'),
-            'rating': round(rating, 3)  # Рейтинг от 0 до 1
+            'rating': round(rating, 3)  # Rating from 0 to 1
         }
     
     def search_and_display(self, prompt: str, show_details: bool = True):
-        """Ищет и красиво отображает результаты"""
-        print(f"🔍 Ищу агентов для: '{prompt}'")
-        print(f"📊 Минимальный рейтинг: {self.min_rating}\n")
+        """Search and display results beautifully"""
+        print(f"🔍 Searching agents for: '{prompt}'")
+        print(f"📊 Minimum rating: {self.min_rating}\n")
         
         matching_agents = self.find_agents_by_prompt(prompt)
         
         if not matching_agents:
-            print(f"❌ Не найдено агентов с рейтингом >= {self.min_rating}")
+            print(f"❌ No agents found with rating >= {self.min_rating}")
             return
         
-        print(f"\n✅ Найдено {len(matching_agents)} подходящих агентов:\n")
+        print(f"\n✅ Found {len(matching_agents)} suitable agents:\n")
         
-        for i, agent in enumerate(matching_agents[:10], 1):  # Показываем топ-10
+        for i, agent in enumerate(matching_agents[:10], 1):  # Show top-10
             # Эмодзи по рейтингу
             if agent['rating'] >= 0.9:
                 emoji = "🌟"
@@ -182,33 +217,33 @@ class GeminiAgentFinder:
             else:
                 emoji = "⚠️"
             
-            print(f"{emoji} #{i} | Рейтинг: {agent['rating']}")
-            print(f"📡 Ресурс: {agent['resource']}")
-            print(f"📝 Описание: {agent['description']}")
+            print(f"{emoji} #{i} | Rating: {agent['rating']}")
+            print(f"📡 Resource: {agent['resource']}")
+            print(f"📝 Description: {agent['description']}")
             
             if show_details:
-                print(f"💰 Цена: {agent['price_usdc']} USDC")
-                print(f"🌍 Сеть: {agent['network']}")
-                print(f"⏱️  Таймаут: {agent['timeout_seconds']}s")
-                print(f"💳 Адрес оплаты: {agent['pay_to_address']}")
-                print(f"🕐 Обновлен: {agent['last_updated']}")
+                print(f"💰 Price: {agent['price_usdc']} USDC")
+                print(f"🌍 Network: {agent['network']}")
+                print(f"⏱️  Timeout: {agent['timeout_seconds']}s")
+                print(f"💳 Payment address: {agent['pay_to_address']}")
+                print(f"🕐 Updated: {agent['last_updated']}")
             
             print("-" * 80)
     
     def get_top_agents(self, prompt: str, limit: int = 5) -> List[Dict]:
-        """Возвращает топ агентов с высоким рейтингом"""
+        """Returns top agents with high rating"""
         matching_agents = self.find_agents_by_prompt(prompt)
         return matching_agents[:limit]
     
     def set_min_rating(self, min_rating: float):
-        """Устанавливает минимальный рейтинг для фильтрации"""
+        """Set minimum rating for filtering"""
         self.min_rating = max(0.0, min(1.0, min_rating))
-        print(f"📊 Минимальный рейтинг установлен: {self.min_rating}")
+        print(f"📊 Minimum rating set: {self.min_rating}")
     
 
     
     def get_rating_stats(self, prompt: str) -> Dict:
-        """Получает статистику рейтингов для всех агентов"""
+        """Get rating statistics for all agents"""
         agents = self.load_agents()
         if not agents:
             return {}
