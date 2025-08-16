@@ -1,20 +1,20 @@
 # Coinbase Price Agent
 
-MCP server for fetching historical prices from Coinbase with optional x402 micropayments support.
+MCP server for fetching historical cryptocurrency prices from Coinbase with optional x402 micropayments support.
 
-## Установка
+## Installation
 
 ```bash
 pip install -e .
 ```
 
-## Настройка
+## Setup
 
-Установите переменные окружения:
+Set environment variables:
 ```bash
-export COINBASE_API_KEY="ваш-api-key-id"
+export COINBASE_API_KEY="your-api-key-id"
 export COINBASE_PRIVATE_KEY="-----BEGIN EC PRIVATE KEY-----
-...ваш-приватный-ключ-в-PEM-формате...
+...your-private-key-in-PEM-format...
 -----END EC PRIVATE KEY-----"
 ```
 
@@ -57,37 +57,53 @@ export CDP_API_KEY_ID="your-cdp-key-id"
 export CDP_API_KEY_SECRET="your-cdp-secret"
 ```
 
-## Доступные инструменты
+## Available Tools
 
-### query_prices (новый!)
+### query_prices
 
-Получает исторические данные по текстовому запросу на естественном языке.
+Get historical price data using natural language text queries.
 
-Параметры:
-- `query` (обязательный): Текстовый запрос
+Parameters:
+- `query` (required): Text query in natural language
 
-Примеры запросов:
-- "Покажи цены BTC за последнюю неделю"
-- "Исторические данные ETH за месяц"
-- "Цены COIN50 с 2024-01-01 по 2024-01-31"
-- "Почасовые данные SOL за вчера"
+Example queries:
+- "Bitcoin price for last year"
+- "ETH prices for last month"
+- "Show me COIN50 data from 2024-01-01 to 2024-01-31"
+- "SOL hourly data for last week"
+- "Покажи цены BTC за последнюю неделю" (Russian supported)
 
 ### get_historical_prices
 
-Получает исторические данные о ценах для указанного индекса (прямой API запрос).
+Get historical price data for specified cryptocurrency (direct API call).
 
-Параметры:
-- `index` (обязательный): Название индекса (например, "COIN50")
-- `granularity`: Временной интервал ("ONE_DAY" или "ONE_HOUR")
-- `start` (обязательный): Начальная дата в формате ISO 8601
-- `end`: Конечная дата в формате ISO 8601
+Parameters:
+- `index` (required): Cryptocurrency symbol (e.g., "BTC", "ETH", "SOL")
+- `granularity`: Time interval ("ONE_DAY" or "ONE_HOUR")
+- `start` (required): Start date in ISO 8601 format
+- `end`: End date in ISO 8601 format (optional)
 
-Пример запроса:
+Example request:
 ```json
 {
-  "index": "COIN50",
+  "index": "BTC",
   "granularity": "ONE_DAY", 
   "start": "2024-01-01T00:00:00Z",
   "end": "2024-01-31T00:00:00Z"
 }
 ```
+
+## Features
+
+- 🤖 **MCP Integration** - Works with AI assistants (Claude, ChatGPT, etc.)
+- 💰 **x402 Micropayments** - Monetize your data with crypto payments
+- 🌍 **Multi-language** - Supports English and Russian queries
+- 📊 **Real-time Data** - Live price data from Coinbase Pro
+- ⚡ **Fast API** - REST endpoints with payment protection
+- 🔍 **Smart Parsing** - Natural language to API parameters
+- 📈 **Multiple Timeframes** - Hourly and daily data
+- 🚀 **Bazaar Ready** - Auto-discovery for x402 marketplace
+
+## Supported Cryptocurrencies
+
+BTC, ETH, SOL, DOGE, ADA, DOT, LINK, UNI, AAVE, COIN50
