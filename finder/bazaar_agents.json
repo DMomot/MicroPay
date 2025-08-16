@@ -1,36 +1,6 @@
 {
   "items": [
-    {
-      "accepts": [
-        {
-          "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-          "description": "Historical cryptocurrency price data",
-          "extra": {
-            "name": "USD Coin",
-            "version": "2"
-          },
-          "maxAmountRequired": "10000",
-          "maxTimeoutSeconds": 60,
-          "mimeType": "",
-          "network": "base",
-          "outputSchema": {
-            "input": {
-              "method": "GET",
-              "type": "http"
-            },
-            "output": null
-          },
-          "payTo": "0xce465C087305314F8f0eaD5A450898f19eFD0E03",
-          "resource": "https://scoutpay-production.up.railway.app/api/prices",
-          "scheme": "exact"
-        }
-      ],
-      "lastUpdated": "2025-08-16T03:51:34.524Z",
-      "metadata": {},
-      "resource": "https://scoutpay-production.up.railway.app/api/prices",
-      "type": "http",
-      "x402Version": 1
-    },
+
     {
       "accepts": [
         {
@@ -720,7 +690,7 @@
   "pagination": {
     "limit": 100,
     "offset": 0,
-    "total": 23
+    "total": 22
   },
   "x402Version": 1
 }

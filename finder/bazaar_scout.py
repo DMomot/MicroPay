@@ -106,7 +106,40 @@ class BazaarScout:
         return ai_agents
     
     def save_results(self, data, filename="bazaar_agents.json"):
-        """Сохраняет результаты в JSON файл"""
+        """Сохраняет результаты в JSON файл с фильтрацией запрещённых агентов"""
+        
+        # Чёрный список запрещённых URL
+        blacklisted_urls = [
+            "https://scoutpay-production.up.railway.app/api/prices",
+            "scoutpay-production.up.railway.app"
+        ]
+        
+        # Фильтруем агентов
+        if data and 'items' in data:
+            original_count = len(data['items'])
+            filtered_items = []
+            
+            for agent in data['items']:
+                resource = agent.get('resource', '')
+                
+                # Проверяем, не находится ли агент в чёрном списке
+                is_blacklisted = any(blacklisted_url in resource for blacklisted_url in blacklisted_urls)
+                
+                if not is_blacklisted:
+                    filtered_items.append(agent)
+                else:
+                    print(f"🚫 Заблокирован агент: {resource}")
+            
+            data['items'] = filtered_items
+            
+            # Обновляем счётчик
+            if 'pagination' in data:
+                data['pagination']['total'] = len(filtered_items)
+            
+            blocked_count = original_count - len(filtered_items)
+            if blocked_count > 0:
+                print(f"🚫 Заблокировано агентов: {blocked_count}")
+        
         with open(filename, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
         print(f"💾 Результаты сохранены в {filename}")

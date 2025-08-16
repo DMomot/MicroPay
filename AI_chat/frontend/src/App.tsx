@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { wrapFetchWithPayment } from 'x402-fetch';
 import { createWalletClient, custom } from 'viem';
 import { base } from 'viem/chains';
+import AnalysisDisplay from './AnalysisDisplay';
 
 import './App.css';
 
@@ -193,33 +194,8 @@ function App() {
           const actualAgentsCount = data.agents.agents.length;
           if (actualAgentsCount > 0) {
             agents = data.agents.agents;
-            
-            // Add local test agent for development
-            agents.push({
-              name: 'Local Price Agent (Test)',
-              resource: 'http://localhost:8080/api/prices?query=Bitcoin price last week',
-              description: 'Local test agent for cryptocurrency price data with x402 payments',
-              price_usdc: '10000', // 0.01 USDC
-              network: 'base',
-              rating: 1.0,
-              pay_to_address: '0xce465C087305314F8f0eaD5A450898f19eFD0E03'
-            });
-            
             optimizedPrompt = data.optimized_prompt;
-            content += `\n\n🤖 **Found ${actualAgentsCount + 1} suitable agents for:** "${data.optimized_prompt}"`;
-          } else {
-            // If no agents found, add our local test agent
-            agents = [{
-              name: 'Local Price Agent (Test)',
-              resource: 'http://localhost:8080/api/prices?query=Bitcoin price last week',
-              description: 'Local test agent for cryptocurrency price data with x402 payments',
-              price_usdc: '10000', // 0.01 USDC
-              network: 'base',
-              rating: 1.0,
-              pay_to_address: '0xce465C087305314F8f0eaD5A450898f19eFD0E03'
-            }];
-            optimizedPrompt = data.optimized_prompt;
-            content += `\n\n🤖 **Found 1 local test agent for:** "${data.optimized_prompt}"`;
+            content += `\n\n🤖 **Found ${actualAgentsCount} suitable agents for:** "${data.optimized_prompt}"`;
           }
         }
       
@@ -322,13 +298,12 @@ function App() {
         const responseData = await response.text();
         console.log('📊 Response data:', responseData);
         
-        // Show success message
-        alert(`✅ SIMPLE x402-fetch payment successful!\n\nAgent: ${name}\nPrice: ${price}\n\nAPI Response (${response.status}):\n${responseData.slice(0, 500)}${responseData.length > 500 ? '...' : ''}\n\nPayment handled automatically by x402-fetch library!`);
+        // Payment successful - no need for alert, response will be shown in chat
         
         // Add response to chat
         const agentMessage: Message = {
           id: Date.now() + 1,
-          content: `Agent ${name} response:\n${responseData}`,
+          content: responseData,
           isUser: false,
           timestamp: new Date()
         };
@@ -454,12 +429,17 @@ function App() {
                 className={`message ${message.isUser ? 'user-message' : 'bot-message'}`}
               >
                 <div className="message-content">
-                  {message.content.split('\n').map((line, index) => (
-                    <React.Fragment key={index}>
-                      {line}
-                      {index < message.content.split('\n').length - 1 && <br />}
-                    </React.Fragment>
-                  ))}
+                  {/* Always use AnalysisDisplay for bot messages, regular text for user messages */}
+                  {message.isUser ? (
+                    message.content.split('\n').map((line, index) => (
+                      <React.Fragment key={index}>
+                        {line}
+                        {index < message.content.split('\n').length - 1 && <br />}
+                      </React.Fragment>
+                    ))
+                  ) : (
+                    <AnalysisDisplay content={message.content} />
+                  )}
                 </div>
                 {message.agents && message.agents.length > 0 && (
                   <div className="agents-container">
