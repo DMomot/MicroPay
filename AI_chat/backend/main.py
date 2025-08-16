@@ -9,9 +9,12 @@ load_dotenv()
 
 app = FastAPI(title="AI Chat Bot API", version="1.0.0")
 
+# Get CORS origins from environment or use default
+cors_origins = os.getenv('CORS_ORIGINS', 'http://localhost:3000').split(',')
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
