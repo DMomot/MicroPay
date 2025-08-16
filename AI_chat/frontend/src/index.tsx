@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { WagmiConfig } from 'wagmi';
+import { WagmiProvider } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import App from './App';
 import { config } from './wagmi';
@@ -12,10 +12,10 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    <WagmiConfig config={config}>
+    <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <App />
       </QueryClientProvider>
-    </WagmiConfig>
+    </WagmiProvider>
   </React.StrictMode>
 );

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { WalletConnection } from './WalletConnection';
+import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import './App.css';
 
 interface Message {
@@ -10,6 +10,10 @@ interface Message {
 }
 
 function App() {
+  const { address, isConnected } = useAccount()
+  const { connect, connectors } = useConnect()
+  const { disconnect } = useDisconnect()
+
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
@@ -94,7 +98,17 @@ function App() {
         <header className="header">
           <h1>AI Бот</h1>
           <p>Powered by Gemini</p>
-          <WalletConnection />
+          
+          {isConnected ? (
+            <div className="wallet-info">
+              <span>{address?.slice(0, 6)}...{address?.slice(-4)}</span>
+              <button onClick={() => disconnect()}>Отключить</button>
+            </div>
+          ) : (
+            <button onClick={() => connect({ connector: connectors[0] })}>
+              Подключить MetaMask
+            </button>
+          )}
         </header>
         
         <div className="chat-container">

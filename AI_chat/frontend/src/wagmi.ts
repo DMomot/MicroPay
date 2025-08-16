@@ -1,37 +1,14 @@
-import { configureChains, createConfig } from 'wagmi'
-import { mainnet, polygon, optimism, arbitrum } from 'wagmi/chains'
-import { publicProvider } from 'wagmi/providers/public'
-import { MetaMaskConnector } from 'wagmi/connectors/metaMask'
-import { WalletConnectConnector } from 'wagmi/connectors/walletConnect'
-import { InjectedConnector } from 'wagmi/connectors/injected'
-
-// Configure chains & providers
-const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [mainnet, polygon, optimism, arbitrum],
-  [publicProvider()]
-)
+import { http, createConfig } from 'wagmi'
+import { mainnet } from 'wagmi/chains'
+import { metaMask } from 'wagmi/connectors'
 
 // Set up wagmi config
 export const config = createConfig({
-  autoConnect: true,
+  chains: [mainnet],
   connectors: [
-    new MetaMaskConnector({ chains }),
-    new InjectedConnector({
-      chains,
-      options: {
-        name: 'Injected',
-        shimDisconnect: true,
-      },
-    }),
-    new WalletConnectConnector({
-      chains,
-      options: {
-        projectId: process.env.REACT_APP_WALLETCONNECT_PROJECT_ID || 'demo-project-id',
-      },
-    }),
+    metaMask(),
   ],
-  publicClient,
-  webSocketPublicClient,
+  transports: {
+    [mainnet.id]: http(),
+  },
 })
-
-export { chains }

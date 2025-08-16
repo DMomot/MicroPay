@@ -1,0 +1,726 @@
+{
+  "items": [
+    {
+      "accepts": [
+        {
+          "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "description": "Historical cryptocurrency price data",
+          "extra": {
+            "name": "USD Coin",
+            "version": "2"
+          },
+          "maxAmountRequired": "10000",
+          "maxTimeoutSeconds": 60,
+          "mimeType": "",
+          "network": "base",
+          "outputSchema": {
+            "input": {
+              "method": "GET",
+              "type": "http"
+            },
+            "output": null
+          },
+          "payTo": "0xce465C087305314F8f0eaD5A450898f19eFD0E03",
+          "resource": "https://scoutpay-production.up.railway.app/api/prices",
+          "scheme": "exact"
+        }
+      ],
+      "lastUpdated": "2025-08-16T03:51:34.524Z",
+      "metadata": {},
+      "resource": "https://scoutpay-production.up.railway.app/api/prices",
+      "type": "http",
+      "x402Version": 1
+    },
+    {
+      "accepts": [
+        {
+          "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "description": "Simple Hello greeting service",
+          "extra": {
+            "name": "USD Coin",
+            "version": "2"
+          },
+          "maxAmountRequired": "1000",
+          "maxTimeoutSeconds": 60,
+          "mimeType": "",
+          "network": "base",
+          "outputSchema": {
+            "input": {
+              "method": "GET",
+              "type": "http"
+            },
+            "output": null
+          },
+          "payTo": "0xce465C087305314F8f0eaD5A450898f19eFD0E03",
+          "resource": "https://x402-hello-agent-production.up.railway.app/api/hello",
+          "scheme": "exact"
+        }
+      ],
+      "lastUpdated": "2025-08-16T00:57:14.897Z",
+      "metadata": {},
+      "resource": "https://x402-hello-agent-production.up.railway.app/api/hello",
+      "type": "http",
+      "x402Version": 1
+    },
+    {
+      "accepts": [
+        {
+          "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "description": "",
+          "extra": {
+            "name": "USD Coin",
+            "version": "2"
+          },
+          "maxAmountRequired": "200",
+          "maxTimeoutSeconds": 60,
+          "mimeType": "",
+          "network": "base",
+          "outputSchema": {
+            "input": {
+              "method": "GET",
+              "type": "http"
+            },
+            "output": null
+          },
+          "payTo": "0xa2477E16dCB42E2AD80f03FE97D7F1a1646cd1c0",
+          "resource": "https://api.prixe.io/x402/last_sold",
+          "scheme": "exact"
+        }
+      ],
+      "lastUpdated": "2025-08-15T22:09:56.633Z",
+      "metadata": {},
+      "resource": "https://api.prixe.io/x402/last_sold",
+      "type": "http",
+      "x402Version": 1
+    },
+    {
+      "accepts": [
+        {
+          "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "description": "Demo endpoint for x402 resource discovery",
+          "extra": {
+            "name": "USD Coin",
+            "version": "2"
+          },
+          "maxAmountRequired": "1000",
+          "maxTimeoutSeconds": 300,
+          "mimeType": "application/json",
+          "network": "base",
+          "outputSchema": {
+            "input": {
+              "method": "GET",
+              "type": "http"
+            }
+          },
+          "payTo": "0x021028695EAfDDe60E139D87000a8bd6cB65645e",
+          "resource": "https://x402-demo-discovery-endpoint.vercel.app/protected",
+          "scheme": "exact"
+        }
+      ],
+      "lastUpdated": "2025-08-15T19:54:20.496Z",
+      "metadata": {},
+      "resource": "https://x402-demo-discovery-endpoint.vercel.app/protected",
+      "type": "http",
+      "x402Version": 1
+    },
+    {
+      "accepts": [
+        {
+          "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "description": "",
+          "extra": {
+            "name": "USD Coin",
+            "version": "2"
+          },
+          "maxAmountRequired": "50000",
+          "maxTimeoutSeconds": 300,
+          "mimeType": "application/json",
+          "network": "base",
+          "outputSchema": {
+            "input": {
+              "method": "GET",
+              "type": "http"
+            }
+          },
+          "payTo": "0x0cC2CDC0EB992860d6c2a216b1DC0895fD2DF82F",
+          "resource": "https://staging.toolkit.dev/api/tool/exa/search",
+          "scheme": "exact"
+        }
+      ],
+      "lastUpdated": "2025-08-15T18:33:56.735Z",
+      "metadata": {},
+      "resource": "https://staging.toolkit.dev/api/tool/exa/search",
+      "type": "http",
+      "x402Version": 1
+    },
+    {
+      "accepts": [
+        {
+          "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "description": "",
+          "extra": {
+            "name": "USD Coin",
+            "version": "2"
+          },
+          "maxAmountRequired": "1000",
+          "maxTimeoutSeconds": 60,
+          "mimeType": "",
+          "network": "base",
+          "outputSchema": {
+            "input": {
+              "discoverable": true,
+              "method": "GET",
+              "type": "http"
+            },
+            "output": null
+          },
+          "payTo": "0xa6459EF31C68DCF46cC603C526526DB1C6eE4fD1",
+          "resource": "https://daa254c34060.ngrok-free.app/weather",
+          "scheme": "exact"
+        }
+      ],
+      "lastUpdated": "2025-08-15T02:31:42.002Z",
+      "metadata": {},
+      "resource": "https://daa254c34060.ngrok-free.app/weather",
+      "type": "http",
+      "x402Version": 1
+    },
+    {
+      "accepts": [
+        {
+          "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "description": "",
+          "extra": {
+            "name": "USD Coin",
+            "version": "2"
+          },
+          "maxAmountRequired": "200",
+          "maxTimeoutSeconds": 60,
+          "mimeType": "",
+          "network": "base",
+          "outputSchema": {
+            "input": {
+              "method": "GET",
+              "type": "http"
+            },
+            "output": null
+          },
+          "payTo": "0xa2477E16dCB42E2AD80f03FE97D7F1a1646cd1c0",
+          "resource": "https://api.prixe.io/x402/last_sold?ticker=AMZN",
+          "scheme": "exact"
+        }
+      ],
+      "lastUpdated": "2025-08-13T19:51:06.205Z",
+      "metadata": {},
+      "resource": "https://api.prixe.io/x402/last_sold?ticker=AMZN",
+      "type": "http",
+      "x402Version": 1
+    },
+    {
+      "accepts": [
+        {
+          "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "description": "",
+          "extra": {
+            "name": "USD Coin",
+            "version": "2"
+          },
+          "maxAmountRequired": "50000",
+          "maxTimeoutSeconds": 300,
+          "mimeType": "application/json",
+          "network": "base",
+          "outputSchema": {
+            "input": {
+              "method": "POST",
+              "type": "http"
+            }
+          },
+          "payTo": "0x0cC2CDC0EB992860d6c2a216b1DC0895fD2DF82F",
+          "resource": "https://staging.toolkit.dev/api/tool/exa/crawling",
+          "scheme": "exact"
+        }
+      ],
+      "lastUpdated": "2025-08-12T17:44:53.901Z",
+      "metadata": {},
+      "resource": "https://staging.toolkit.dev/api/tool/exa/crawling",
+      "type": "http",
+      "x402Version": 1
+    },
+    {
+      "accepts": [
+        {
+          "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "description": "",
+          "extra": {
+            "name": "USD Coin",
+            "version": "2"
+          },
+          "maxAmountRequired": "200",
+          "maxTimeoutSeconds": 60,
+          "mimeType": "",
+          "network": "base",
+          "outputSchema": {
+            "input": {
+              "method": "GET",
+              "type": "http"
+            },
+            "output": null
+          },
+          "payTo": "0xa2477E16dCB42E2AD80f03FE97D7F1a1646cd1c0",
+          "resource": "https://api.prixe.io/x402/search?query=AMZN",
+          "scheme": "exact"
+        }
+      ],
+      "lastUpdated": "2025-08-12T17:44:13.227Z",
+      "metadata": {},
+      "resource": "https://api.prixe.io/x402/search?query=AMZN",
+      "type": "http",
+      "x402Version": 1
+    },
+    {
+      "accepts": [
+        {
+          "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "description": "",
+          "extra": {
+            "name": "USD Coin",
+            "version": "2"
+          },
+          "maxAmountRequired": "50000",
+          "maxTimeoutSeconds": 300,
+          "mimeType": "application/json",
+          "network": "base",
+          "outputSchema": {
+            "input": {
+              "method": "POST",
+              "type": "http"
+            }
+          },
+          "payTo": "0x0cC2CDC0EB992860d6c2a216b1DC0895fD2DF82F",
+          "resource": "https://staging.toolkit.dev/api/tool/e2b/run-code",
+          "scheme": "exact"
+        }
+      ],
+      "lastUpdated": "2025-08-11T20:09:00.918Z",
+      "metadata": {},
+      "resource": "https://staging.toolkit.dev/api/tool/e2b/run-code",
+      "type": "http",
+      "x402Version": 1
+    },
+    {
+      "accepts": [
+        {
+          "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "description": "Access to protected content",
+          "extra": {
+            "name": "USD Coin",
+            "version": "2"
+          },
+          "maxAmountRequired": "1000000",
+          "maxTimeoutSeconds": 300,
+          "mimeType": "application/json",
+          "network": "base",
+          "outputSchema": {
+            "input": {
+              "method": "GET",
+              "type": "http"
+            }
+          },
+          "payTo": "0xf97d54F304Fa5C3a705aac8408846786B1f9abBA",
+          "resource": "https://staging-echo.merit.systems/api/v1/base/payment-link",
+          "scheme": "exact"
+        }
+      ],
+      "lastUpdated": "2025-08-11T14:05:36.955Z",
+      "metadata": {},
+      "resource": "https://staging-echo.merit.systems/api/v1/base/payment-link",
+      "type": "http",
+      "x402Version": 1
+    },
+    {
+      "accepts": [
+        {
+          "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "description": "",
+          "extra": {
+            "name": "USD Coin",
+            "version": "2"
+          },
+          "maxAmountRequired": "200",
+          "maxTimeoutSeconds": 60,
+          "mimeType": "",
+          "network": "base",
+          "outputSchema": {
+            "input": {
+              "method": "GET",
+              "type": "http"
+            },
+            "output": null
+          },
+          "payTo": "0xa2477E16dCB42E2AD80f03FE97D7F1a1646cd1c0",
+          "resource": "https://api.prixe.io/x402/last_sold?ticker=COIN",
+          "scheme": "exact"
+        }
+      ],
+      "lastUpdated": "2025-08-10T19:20:33.641Z",
+      "metadata": {},
+      "resource": "https://api.prixe.io/x402/last_sold?ticker=COIN",
+      "type": "http",
+      "x402Version": 1
+    },
+    {
+      "accepts": [
+        {
+          "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "description": "",
+          "extra": {
+            "name": "USD Coin",
+            "version": "2"
+          },
+          "maxAmountRequired": "200",
+          "maxTimeoutSeconds": 60,
+          "mimeType": "",
+          "network": "base",
+          "outputSchema": {
+            "input": {
+              "method": "GET",
+              "type": "http"
+            },
+            "output": null
+          },
+          "payTo": "0xa2477E16dCB42E2AD80f03FE97D7F1a1646cd1c0",
+          "resource": "https://api.prixe.io/x402/search?query=Coinbase",
+          "scheme": "exact"
+        }
+      ],
+      "lastUpdated": "2025-08-10T19:20:18.72Z",
+      "metadata": {},
+      "resource": "https://api.prixe.io/x402/search?query=Coinbase",
+      "type": "http",
+      "x402Version": 1
+    },
+    {
+      "accepts": [
+        {
+          "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "description": "",
+          "extra": {
+            "name": "USD Coin",
+            "version": "2"
+          },
+          "maxAmountRequired": "200",
+          "maxTimeoutSeconds": 60,
+          "mimeType": "",
+          "network": "base",
+          "outputSchema": {
+            "input": {
+              "method": "GET",
+              "type": "http"
+            },
+            "output": null
+          },
+          "payTo": "0xa2477E16dCB42E2AD80f03FE97D7F1a1646cd1c0",
+          "resource": "https://api.prixe.io/x402/search?query=COIN",
+          "scheme": "exact"
+        }
+      ],
+      "lastUpdated": "2025-08-10T19:20:09.084Z",
+      "metadata": {},
+      "resource": "https://api.prixe.io/x402/search?query=COIN",
+      "type": "http",
+      "x402Version": 1
+    },
+    {
+      "accepts": [
+        {
+          "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "description": "",
+          "extra": {
+            "name": "USD Coin",
+            "version": "2"
+          },
+          "maxAmountRequired": "50000",
+          "maxTimeoutSeconds": 300,
+          "mimeType": "application/json",
+          "network": "base",
+          "outputSchema": {
+            "input": {
+              "method": "POST",
+              "type": "http"
+            }
+          },
+          "payTo": "0x0cC2CDC0EB992860d6c2a216b1DC0895fD2DF82F",
+          "resource": "https://staging.toolkit.dev/api/tool/exa/github-search",
+          "scheme": "exact"
+        }
+      ],
+      "lastUpdated": "2025-08-10T16:29:20.557Z",
+      "metadata": {},
+      "resource": "https://staging.toolkit.dev/api/tool/exa/github-search",
+      "type": "http",
+      "x402Version": 1
+    },
+    {
+      "accepts": [
+        {
+          "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "description": "",
+          "extra": {
+            "name": "USD Coin",
+            "version": "2"
+          },
+          "maxAmountRequired": "10000",
+          "maxTimeoutSeconds": 300,
+          "mimeType": "application/json",
+          "network": "base",
+          "outputSchema": {
+            "input": {
+              "method": "POST",
+              "type": "http"
+            }
+          },
+          "payTo": "0x0cC2CDC0EB992860d6c2a216b1DC0895fD2DF82F",
+          "resource": "https://staging.toolkit.dev/api/tool/memory/search-memories",
+          "scheme": "exact"
+        }
+      ],
+      "lastUpdated": "2025-08-10T14:36:12.053Z",
+      "metadata": {},
+      "resource": "https://staging.toolkit.dev/api/tool/memory/search-memories",
+      "type": "http",
+      "x402Version": 1
+    },
+    {
+      "accepts": [
+        {
+          "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "description": "",
+          "extra": {
+            "name": "USD Coin",
+            "version": "2"
+          },
+          "maxAmountRequired": "10000",
+          "maxTimeoutSeconds": 300,
+          "mimeType": "application/json",
+          "network": "base",
+          "outputSchema": {
+            "input": {
+              "method": "POST",
+              "type": "http"
+            }
+          },
+          "payTo": "0x0cC2CDC0EB992860d6c2a216b1DC0895fD2DF82F",
+          "resource": "https://staging.toolkit.dev/api/tool/memory/add-memory",
+          "scheme": "exact"
+        }
+      ],
+      "lastUpdated": "2025-08-10T07:10:58.22Z",
+      "metadata": {},
+      "resource": "https://staging.toolkit.dev/api/tool/memory/add-memory",
+      "type": "http",
+      "x402Version": 1
+    },
+    {
+      "accepts": [
+        {
+          "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "description": "",
+          "extra": {
+            "name": "USD Coin",
+            "version": "2"
+          },
+          "maxAmountRequired": "200",
+          "maxTimeoutSeconds": 60,
+          "mimeType": "",
+          "network": "base",
+          "outputSchema": {
+            "input": {
+              "method": "GET",
+              "type": "http"
+            },
+            "output": null
+          },
+          "payTo": "0xa2477E16dCB42E2AD80f03FE97D7F1a1646cd1c0",
+          "resource": "https://api.prixe.io/x402/search?query=TSLA",
+          "scheme": "exact"
+        }
+      ],
+      "lastUpdated": "2025-08-09T21:41:06.224Z",
+      "metadata": {},
+      "resource": "https://api.prixe.io/x402/search?query=TSLA",
+      "type": "http",
+      "x402Version": 1
+    },
+    {
+      "accepts": [
+        {
+          "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "description": "",
+          "extra": {
+            "name": "USD Coin",
+            "version": "2"
+          },
+          "maxAmountRequired": "200",
+          "maxTimeoutSeconds": 60,
+          "mimeType": "",
+          "network": "base",
+          "outputSchema": {
+            "input": {
+              "method": "GET",
+              "type": "http"
+            },
+            "output": null
+          },
+          "payTo": "0xa2477E16dCB42E2AD80f03FE97D7F1a1646cd1c0",
+          "resource": "https://api.prixe.io/x402/last_sold?ticker=TSLA",
+          "scheme": "exact"
+        }
+      ],
+      "lastUpdated": "2025-08-09T21:02:40.771Z",
+      "metadata": {},
+      "resource": "https://api.prixe.io/x402/last_sold?ticker=TSLA",
+      "type": "http",
+      "x402Version": 1
+    },
+    {
+      "accepts": [
+        {
+          "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "description": "Daily remix video generation with profile picture",
+          "extra": {
+            "name": "USD Coin",
+            "version": "2"
+          },
+          "maxAmountRequired": "500000",
+          "maxTimeoutSeconds": 300,
+          "mimeType": "application/json",
+          "network": "base",
+          "outputSchema": {
+            "input": {
+              "bodyFields": {
+                "farcasterId": "number",
+                "pfpUrl": "string",
+                "walletAddress": "string"
+              },
+              "bodyType": "json",
+              "method": "POST",
+              "type": "http"
+            }
+          },
+          "payTo": "0x37ffc90BDb5B0c3aCF8beCCCe4AA7e7d74ab38Ba",
+          "resource": "https://www.remixme.xyz/api/generate/daily",
+          "scheme": "exact"
+        }
+      ],
+      "lastUpdated": "2025-08-09T18:08:10.399Z",
+      "metadata": {},
+      "resource": "https://www.remixme.xyz/api/generate/daily",
+      "type": "http",
+      "x402Version": 1
+    },
+    {
+      "accepts": [
+        {
+          "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "description": "",
+          "extra": {
+            "name": "USD Coin",
+            "version": "2"
+          },
+          "maxAmountRequired": "200",
+          "maxTimeoutSeconds": 60,
+          "mimeType": "",
+          "network": "base",
+          "outputSchema": {
+            "input": {
+              "method": "GET",
+              "type": "http"
+            },
+            "output": null
+          },
+          "payTo": "0xa2477E16dCB42E2AD80f03FE97D7F1a1646cd1c0",
+          "resource": "https://api.prixe.io/x402/search?query=Apple",
+          "scheme": "exact"
+        }
+      ],
+      "lastUpdated": "2025-08-09T17:56:36.727Z",
+      "metadata": {},
+      "resource": "https://api.prixe.io/x402/search?query=Apple",
+      "type": "http",
+      "x402Version": 1
+    },
+    {
+      "accepts": [
+        {
+          "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "description": "",
+          "extra": {
+            "name": "USD Coin",
+            "version": "2"
+          },
+          "maxAmountRequired": "200",
+          "maxTimeoutSeconds": 60,
+          "mimeType": "",
+          "network": "base",
+          "outputSchema": {
+            "input": {
+              "method": "GET",
+              "type": "http"
+            },
+            "output": null
+          },
+          "payTo": "0xa2477E16dCB42E2AD80f03FE97D7F1a1646cd1c0",
+          "resource": "https://api.prixe.io/x402/search?query=AAPL",
+          "scheme": "exact"
+        }
+      ],
+      "lastUpdated": "2025-08-09T17:56:26.804Z",
+      "metadata": {},
+      "resource": "https://api.prixe.io/x402/search?query=AAPL",
+      "type": "http",
+      "x402Version": 1
+    },
+    {
+      "accepts": [
+        {
+          "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          "description": "Custom remix video generation with any picture",
+          "extra": {
+            "name": "USD Coin",
+            "version": "2"
+          },
+          "maxAmountRequired": "1000000",
+          "maxTimeoutSeconds": 300,
+          "mimeType": "application/json",
+          "network": "base",
+          "outputSchema": {
+            "input": {
+              "bodyFields": {
+                "imageUrl": "string",
+                "prompt": "string",
+                "walletAddress": "string"
+              },
+              "bodyType": "json",
+              "method": "POST",
+              "type": "http"
+            }
+          },
+          "payTo": "0x37ffc90BDb5B0c3aCF8beCCCe4AA7e7d74ab38Ba",
+          "resource": "https://www.remixme.xyz/api/generate/custom-video",
+          "scheme": "exact"
+        }
+      ],
+      "lastUpdated": "2025-08-01T00:35:48.863Z",
+      "metadata": {},
+      "resource": "https://www.remixme.xyz/api/generate/custom-video",
+      "type": "http",
+      "x402Version": 1
+    }
+  ],
+  "pagination": {
+    "limit": 100,
+    "offset": 0,
+    "total": 23
+  },
+  "x402Version": 1
+}
