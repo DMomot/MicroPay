@@ -30,11 +30,21 @@ class X402Client:
             Response data from the agent or None if failed
         """
         try:
-            # Construct the request URL with query parameter
+            # Clean agent_url and add user query
+            logger.info(f"🔍 Original agent_url: {agent_url}")
+            logger.info(f"🔍 Query to add: {query}")
+            
+            # Remove existing query parameters from agent_url
             if "?" in agent_url:
-                request_url = f"{agent_url}&query={query}"
+                base_url = agent_url.split("?")[0]
             else:
-                request_url = f"{agent_url}?query={query}"
+                base_url = agent_url
+                
+            # Add only our query parameter
+            request_url = f"{base_url}?query={query}"
+            
+            logger.info(f"🔍 Cleaned base_url: {base_url}")
+            logger.info(f"🔍 Final request_url: {request_url}")
             
             logger.info(f"🔗 Making x402 request to: {request_url}")
             logger.info(f"💰 Payment info: {payment_info}")

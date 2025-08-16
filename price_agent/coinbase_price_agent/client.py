@@ -34,31 +34,33 @@ class CoinbaseClient:
         
         cb_granularity = granularity_map.get(granularity, "ONE_DAY")
         
-        try:
-            # Get historical data via official library
-            response = self.client.get_candles(
-                product_id=f"{symbol}-USD",
-                start=start_unix,
-                end=end_unix,
-                granularity=cb_granularity
-            )
-            
-            return response
-            
-        except Exception as e:
-            # If USD pair fails, try alternative pairs
-            alt_pairs = [f"{symbol}-USDC", f"{symbol}-BTC"]
-            
-            for pair in alt_pairs:
-                try:
-                    response = self.client.get_candles(
-                        product_id=pair,
-                        start=start_unix,
-                        end=end_unix,
-                        granularity=cb_granularity
-                    )
-                    return response
-                except:
-                    continue
+        # List of trading pairs to try in order of preference
+        pairs_to_try = [f"{symbol}-USD", f"{symbol}-USDC", f"{symbol}-BTC"]
+        last_error = None
+        
+        for pair in pairs_to_try:
+            try:
+                print(f"🔍 Trying to fetch data for {pair}...")
+                response = self.client.get_candles(
+                    product_id=pair,
+                    start=start_unix,
+                    end=end_unix,
+                    granularity=cb_granularity
+                )
+                print(f"✅ Successfully fetched data for {pair}")
+                return response
+                
+            except Exception as e:
+                print(f"❌ Failed to fetch data for {pair}: {str(e)}")
+                last_error = e
+                continue
                     
-            raise Exception(f"Failed to get data for {symbol}: {str(e)}")
+        # If all pairs failed, provide helpful error message
+        error_msg = f"Failed to get data for {symbol}. "
+        if "INVALID_ARGUMENT" in str(last_error) or "ProductID is invalid" in str(last_error):
+            error_msg += f"The symbol '{symbol}' is not available on Coinbase. "
+            error_msg += "Please check the symbol name or try a different cryptocurrency."
+        else:
+            error_msg += f"Last error: {str(last_error)}"
+            
+        raise Exception(error_msg)

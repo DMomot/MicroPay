@@ -6,7 +6,7 @@ from mcp.types import Tool, TextContent
 from pydantic import BaseModel
 from typing import Any, Sequence
 from .client import CoinbaseClient
-from .parser import QueryParser
+from .gemini_parser import GeminiQueryParser
 
 
 class GetHistoricalPricesArgs(BaseModel):
@@ -83,9 +83,9 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> Sequence[TextConten
 
 async def handle_query_prices(arguments: dict[str, Any]) -> Sequence[TextContent]:
     args = QueryPricesArgs(**arguments)
-    parser = QueryParser()
+    parser = GeminiQueryParser()
     
-    # Parse query
+    # Parse query using Gemini AI
     parsed_params = parser.parse_query(args.query)
     
     if not parsed_params["start"]:

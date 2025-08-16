@@ -24,7 +24,9 @@ app.add_middleware(
 try:
     import os
     refresh_interval = int(os.getenv('AGENTS_REFRESH_INTERVAL_MINUTES', '60'))
-    finder = GeminiAgentFinder(min_rating=0.5, refresh_interval_minutes=refresh_interval)
+    min_rating_threshold = float(os.getenv('MIN_RATING_THRESHOLD', '0.8'))  # Повышаем до 0.8
+    print(f"🎯 Using minimum rating threshold: {min_rating_threshold}")
+    finder = GeminiAgentFinder(min_rating=min_rating_threshold, refresh_interval_minutes=refresh_interval)
 except ValueError as e:
     print(f"❌ Gemini initialization error: {e}")
     print("💡 Make sure GEMINI_API_KEY is set in .env file")
@@ -33,7 +35,7 @@ except ValueError as e:
 class SearchRequest(BaseModel):
     prompt: str
     max_results: Optional[int] = 10
-    min_rating: Optional[float] = 0.5
+    min_rating: Optional[float] = 0.9  # Будет использовать значение из ENV
 
 class AgentInfo(BaseModel):
     name: str
@@ -73,6 +75,25 @@ async def health_check():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"API unavailable: {str(e)}")
 
+def filter_blacklisted_agents(agents: List[Dict]) -> List[Dict]:
+    """Фильтрует заблокированные агенты"""
+    blacklisted_urls = [
+        "https://scoutpay-production.up.railway.app/api/prices",
+        "scoutpay-production.up.railway.app"
+    ]
+    
+    filtered_agents = []
+    for agent in agents:
+        resource = agent.get('resource', '')
+        is_blacklisted = any(blacklisted_url in resource for blacklisted_url in blacklisted_urls)
+        
+        if not is_blacklisted:
+            filtered_agents.append(agent)
+        else:
+            print(f"🚫 API: Blocked agent from response: {resource}")
+    
+    return filtered_agents
+
 @app.post("/search", response_model=SearchResponse)
 async def search_agents(request: SearchRequest):
     """Search agents by prompt with Gemini"""
@@ -94,12 +115,15 @@ async def search_agents(request: SearchRequest):
         # Restore original rating
         finder.min_rating = original_min_rating
         
+        # Filter out blacklisted agents
+        filtered_agents = filter_blacklisted_agents(matching_agents)
+        
         # Limit results count
-        limited_agents = matching_agents[:request.max_results]
+        limited_agents = filtered_agents[:request.max_results]
         
         return SearchResponse(
             query=request.prompt,
-            found_agents=len(matching_agents),
+            found_agents=len(filtered_agents),
             agents=[AgentInfo(**agent) for agent in limited_agents],
             status="success"
         )

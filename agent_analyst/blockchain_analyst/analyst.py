@@ -139,9 +139,22 @@ class BlockchainAnalyst:
             
             # Step 3: Gather data from agents
             logger.info("📡 STEP 3: Gathering data from agents...")
-            collected_data = await self._gather_data(relevant_agents, user_query)
+            # Transform user query for price agents
+            price_query = self._transform_query_for_prices(user_query)
+            collected_data = await self._gather_data(relevant_agents, price_query)
             successful_data = sum(1 for data in collected_data.values() if "error" not in data)
-            logger.info(f"✅ Data collection complete: {successful_data}/{len(collected_data)} successful")
+            logger.info(f"📊 Data collection complete: {successful_data}/{len(collected_data)} successful")
+            
+            # Check if we have any successful data
+            if successful_data == 0:
+                logger.error("❌ No data collected successfully - cannot generate analysis")
+                return {
+                    "query": user_query,
+                    "error": "Failed to collect data from any agents",
+                    "data_collection_status": f"{successful_data}/{len(collected_data)} successful",
+                    "collected_errors": collected_data,
+                    "timestamp": self._get_timestamp()
+                }
             
             # Step 4: Generate analysis
             logger.info("🧠 STEP 4: Generating analysis with Gemini...")
@@ -212,6 +225,13 @@ class BlockchainAnalyst:
             
             result = response.text.strip()
             logger.info(f"🤖 Gemini response: {result}")
+            
+            # Clean up response (remove markdown formatting if present)
+            if result.startswith('```json'):
+                result = result.replace('```json', '').replace('```', '').strip()
+            elif result.startswith('```'):
+                result = result.replace('```', '').strip()
+            
             parsed_result = json.loads(result)
             logger.info(f"✅ Parsed data requirements: {parsed_result}")
             return parsed_result
@@ -245,57 +265,71 @@ class BlockchainAnalyst:
         
         relevant_agents = []
         
-        # Map data requirements to search queries for finder
-        search_queries = {
-            "price_data": "cryptocurrency price historical data coinbase bitcoin ethereum",
-            "market_data": "market cap volume trading data cryptocurrency",
-            "defi_data": "defi protocol yield farming tvl liquidity",
-            "nft_data": "nft collection floor price sales opensea",
-            "news_data": "crypto news sentiment analysis market",
-            "technical_data": "technical analysis indicators charts trading",
-            "on_chain_data": "blockchain metrics transactions addresses on-chain"
-        }
-        
-        logger.info(f"🔍 Searching for agents to provide data: {data_requirements}")
+        # Search for price-related agents only
+        search_query = "cryptocurrency price historical data"
+        logger.info(f"🔍 Searching for price agents with query: '{search_query}'")
         
         async with httpx.AsyncClient(timeout=30.0) as client:
-            for data_type in data_requirements:
-                if data_type in search_queries:
-                    try:
-                        search_query = search_queries[data_type]
-                        logger.info(f"🔍 Searching finder for '{data_type}' with query: '{search_query}'")
+            try:
+                response = await client.post(
+                    f"{self.finder_url}/search",
+                    json={
+                        "prompt": search_query,
+                        "max_results": 5,
+                        "min_rating": 0.3
+                    },
+                    headers={"Content-Type": "application/json"}
+                )
+                
+                logger.info(f"📡 Finder response status: {response.status_code}")
+                
+                if response.status_code == 200:
+                    search_result = response.json()
+                    found_agents = search_result.get("agents", [])
+                    logger.info(f"✅ Found {len(found_agents)} price agents")
+                    
+                    for agent in found_agents:
+                        relevant_agents.append(agent)
+                        logger.info(f"➕ Added price agent: {agent['name']} - {agent.get('description', 'No description')[:100]}...")
+                else:
+                    logger.error(f"❌ Finder search failed with status {response.status_code}: {response.text}")
                         
-                        response = await client.post(
-                            f"{self.finder_url}/search",
-                            json={
-                                "prompt": search_query,
-                                "max_results": 5,
-                                "min_rating": 0.3  # Lower threshold to find more agents
-                            },
-                            headers={"Content-Type": "application/json"}
-                        )
-                        
-                        logger.info(f"📡 Finder response status: {response.status_code}")
-                        
-                        if response.status_code == 200:
-                            search_result = response.json()
-                            found_agents = search_result.get("agents", [])
-                            logger.info(f"✅ Found {len(found_agents)} agents for {data_type}")
-                            
-                            for agent in found_agents:
-                                # Avoid duplicates
-                                if not any(existing["name"] == agent["name"] for existing in relevant_agents):
-                                    relevant_agents.append(agent)
-                                    logger.info(f"➕ Added agent: {agent['name']} - {agent.get('description', 'No description')[:100]}...")
-                        else:
-                            logger.error(f"❌ Finder search failed with status {response.status_code}: {response.text}")
-                                    
-                    except Exception as e:
-                        logger.error(f"❌ Error finding agents for {data_type}: {e}")
-                        continue
+            except Exception as e:
+                logger.error(f"❌ Error searching for price agents: {e}")
         
         logger.info(f"📊 Total unique agents found: {len(relevant_agents)}")
         return relevant_agents[:10]  # Increase limit to get more data sources
+    
+    def _transform_query_for_prices(self, user_query: str) -> str:
+        """Transform user query into a price data request"""
+        
+        # Extract cryptocurrency from query
+        crypto_tokens = ["bitcoin", "btc", "ethereum", "eth", "solana", "sol", "dogecoin", "doge"]
+        found_token = "bitcoin"  # default
+        
+        query_lower = user_query.lower()
+        for token in crypto_tokens:
+            if token in query_lower:
+                found_token = token
+                break
+        
+        # Extract time period
+        time_period = "2 months"  # default
+        if "week" in query_lower:
+            time_period = "1 week"
+        elif "month" in query_lower:
+            if "two months" in query_lower or "2 months" in query_lower:
+                time_period = "2 months"
+            else:
+                time_period = "1 month"
+        elif "year" in query_lower:
+            time_period = "1 year"
+        
+        # Create price query
+        price_query = f"{found_token} prices by {time_period}"
+        logger.info(f"🔄 Transformed query: '{user_query}' → '{price_query}'")
+        
+        return price_query
     
     async def _gather_data(self, agents: List[Dict[str, Any]], query: str) -> Dict[str, Any]:
         """Gather data from the found agents using x402 payments"""
