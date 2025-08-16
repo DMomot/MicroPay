@@ -1,0 +1,8 @@
+[phases.setup]
+nixPkgs = ['python310']
+
+[phases.install]
+cmds = ['pip install -e .']
+
+[start]
+cmd = 'python -m coinbase_price_agent.demo_server'
