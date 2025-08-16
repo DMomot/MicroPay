@@ -136,7 +136,7 @@ async def get_agents_stats():
 
 if __name__ == "__main__":
     import os
-    port = int(os.getenv("PORT", 8000))
+    port = int(os.getenv("PORT", 8081))
     
     print("🚀 Starting ScoutPay AI Agent Finder API...")
     print(f"📡 API will be available on port {port}")
