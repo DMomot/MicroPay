@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "coinbase-price-agent"
+version = "0.1.0"
+description = "MCP server for fetching historical prices from Coinbase"
+dependencies = [
+    "mcp>=1.0.0",
+    "pydantic>=2.0.0",
+    "coinbase-advanced-py>=1.0.0",
+    "fastapi>=0.104.0",
+    "uvicorn>=0.24.0",
+    "python-dotenv>=1.0.0",
+    "x402>=0.1.0",
+    "cdp-sdk>=0.1.0"
+]
+
+[project.scripts]
+coinbase-price-agent = "coinbase_price_agent.server:main"
+coinbase-price-agent-x402 = "coinbase_price_agent.x402_server:main"

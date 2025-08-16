@@ -1,0 +1,18 @@
+# Coinbase API Configuration
+COINBASE_API_KEY=your-coinbase-api-key-id
+COINBASE_PRIVATE_KEY=-----BEGIN EC PRIVATE KEY-----
+your-private-key-in-pem-format
+-----END EC PRIVATE KEY-----
+
+# x402 Payment Configuration
+X402_WALLET_ADDRESS=0xce465C087305314F8f0eaD5A450898f19eFD0E03
+X402_NETWORK=base
+X402_PRICE=0.01
+
+# CDP API Configuration (for x402 facilitator)
+CDP_API_KEY_ID=your-cdp-api-key-id
+CDP_API_KEY_SECRET=your-cdp-api-secret
+
+# Server Configuration
+PORT=8080
+
