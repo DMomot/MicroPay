@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { WalletConnection } from './WalletConnection';
 import './App.css';
 
 interface Message {
@@ -93,6 +94,7 @@ function App() {
         <header className="header">
           <h1>AI Бот</h1>
           <p>Powered by Gemini</p>
+          <WalletConnection />
         </header>
         
         <div className="chat-container">

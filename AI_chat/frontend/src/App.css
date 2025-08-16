@@ -206,6 +206,96 @@ body {
   }
 }
 
+/* Wallet Connection Styles */
+.wallet-connection {
+  margin-top: 20px;
+}
+
+.wallet-connectors {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.connect-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.connect-button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+.connect-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.wallet-connected {
+  margin-top: 20px;
+}
+
+.wallet-info {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  backdrop-filter: blur(10px);
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.wallet-address {
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: 'Courier New', monospace;
+}
+
+.disconnect-button {
+  background: rgba(255, 59, 48, 0.8);
+  border: none;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.disconnect-button:hover {
+  background: rgba(255, 59, 48, 1);
+  transform: scale(1.05);
+}
+
+.connection-error {
+  background: rgba(255, 59, 48, 0.1);
+  border: 1px solid rgba(255, 59, 48, 0.3);
+  color: #ff3b30;
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 10px;
+  font-size: 14px;
+  text-align: center;
+}
+
 @media (max-width: 640px) {
   .app {
     padding: 10px;
@@ -229,5 +319,21 @@ body {
   
   .chat-input-container {
     padding: 15px;
+  }
+
+  .wallet-connectors {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .connect-button {
+    width: 100%;
+    max-width: 200px;
+  }
+
+  .wallet-info {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
   }
 }
