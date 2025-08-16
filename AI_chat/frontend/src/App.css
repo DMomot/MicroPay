@@ -30,14 +30,14 @@ body {
 
 .header-content {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   width: 100%;
+  position: relative;
 }
 
 .header-text {
   text-align: center;
-  flex: 1;
 }
 
 .header-text h1 {
@@ -224,7 +224,36 @@ body {
 }
 
 /* MetaMask Button Styles */
+.connect-wallet-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 16px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(20px);
+  text-transform: none;
+  letter-spacing: 0.5px;
+}
+
+.connect-wallet-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+}
+
 .wallet-info {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
   background: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 16px;
@@ -237,35 +266,31 @@ body {
   max-width: 280px;
 }
 
-.wallet-info span {
+.wallet-address {
   color: white;
   font-size: 14px;
   font-weight: 500;
   font-family: 'Courier New', monospace;
 }
 
-.wallet-info button {
-  background: rgba(255, 255, 255, 0.2) !important;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
-  color: white !important;
-  padding: 6px 12px !important;
-  border-radius: 8px !important;
-  cursor: pointer !important;
-  font-size: 11px !important;
-  font-weight: 500 !important;
-  transition: all 0.2s ease !important;
-  margin-top: 0 !important;
-  text-transform: none !important;
-  letter-spacing: normal !important;
-  box-shadow: none !important;
+.disconnect-btn {
+  background: rgba(255, 59, 48, 0.6);
+  border: 1px solid rgba(255, 59, 48, 0.8);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
-.wallet-info button:hover {
-  background: rgba(255, 59, 48, 0.8) !important;
-  border-color: rgba(255, 59, 48, 0.8) !important;
-  transform: none !important;
-  box-shadow: none !important;
+.disconnect-btn:hover {
+  background: rgba(255, 59, 48, 0.8);
+  border-color: rgba(255, 59, 48, 1);
 }
+
+
 
 .wallet-section button {
   background: linear-gradient(135deg, #667eea, #764ba2);
@@ -324,9 +349,28 @@ body {
   }
 
   .wallet-info {
+    position: fixed;
+    top: 10px;
+    right: 10px;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
     text-align: center;
+    max-width: 200px;
+    padding: 8px 12px;
+  }
+
+  .connect-wallet-btn {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    padding: 8px 16px;
+    font-size: 12px;
+  }
+
+  .header-content {
+    flex-direction: column;
+    gap: 15px;
+    padding-top: 60px;
   }
 }
 
@@ -381,6 +425,8 @@ body {
 .agent-details {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 15px;
 }
 
 .agent-price {
@@ -391,6 +437,34 @@ body {
   font-size: 13px;
   font-weight: 600;
   border: 1px solid #e8eaed;
+}
+
+.pay-button {
+  background: #1a73e8;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pay-button:hover:not(:disabled) {
+  background: #1557b0;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(26, 115, 232, 0.3);
+}
+
+.pay-button:disabled {
+  background: #dadce0;
+  color: #5f6368;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .agent-network {

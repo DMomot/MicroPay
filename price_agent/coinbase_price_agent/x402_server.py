@@ -62,21 +62,36 @@ class UnifiedMiddleware(BaseHTTPMiddleware):
             "Access-Control-Allow-Credentials": "true",
             "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
             "Access-Control-Allow-Headers": "*",
-            "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
-            "Cross-Origin-Embedder-Policy": "require-corp"
+            "Access-Control-Expose-Headers": "X-Payment-Required, X-Accept-Payment"
         })
+        # Removed COOP and COEP headers as they can cause issues
         return response
     
     async def dispatch(self, request: Request, call_next):
-        if request.method in ["OPTIONS", "HEAD"]:
+        # ALWAYS handle OPTIONS first for CORS preflight
+        if request.method == "OPTIONS":
+            return self._add_headers(Response(status_code=200))
+        
+        if request.method == "HEAD":
             return self._add_headers(Response())
         
-        if request.url.path == "/api/prices" and request.method == "GET":
-            response = await self.payment_handler(request, call_next)
+        # For x402 protected endpoint, we need to handle CORS differently
+        if request.url.path == "/api/prices" and request.method in ["GET", "POST"]:
+            try:
+                response = await self.payment_handler(request, call_next)
+                # Add CORS headers to x402 responses
+                return self._add_headers(response)
+            except Exception as e:
+                # If x402 fails, still add CORS headers
+                error_response = Response(
+                    content=str(e),
+                    status_code=500,
+                    media_type="text/plain"
+                )
+                return self._add_headers(error_response)
         else:
             response = await call_next(request)
-        
-        return self._add_headers(response)
+            return self._add_headers(response)
 
 app.add_middleware(UnifiedMiddleware)
 
