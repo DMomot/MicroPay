@@ -20,22 +20,23 @@ export COINBASE_PRIVATE_KEY="-----BEGIN EC PRIVATE KEY-----
 
 ## Usage
 
-### MCP Server (Free)
+### Railway Deployment
+Deploy to Railway with Docker:
 ```bash
-python -m coinbase_price_agent.server
+railway login
+railway create
+railway up
 ```
 
-### x402 HTTP Server (Paid)
+### Local Development
 ```bash
 python -m coinbase_price_agent.x402_server
-# or
-coinbase-price-agent-x402
 ```
 
-The x402 server provides HTTP endpoints with micropayment protection:
+### Endpoints
 - `GET /api/prices?query=Bitcoin price for last year` - $0.01 per query
-- Automatic discovery via `/.well-known/x402`
-- Compatible with x402 Bazaar marketplace
+- `GET /.well-known/x402` - x402 discovery endpoint
+- `GET /health` - Health check
 
 ## API Keys Setup
 
@@ -47,12 +48,12 @@ The x402 server provides HTTP endpoints with micropayment protection:
    - **id** → COINBASE_API_KEY
    - **privateKey** → COINBASE_PRIVATE_KEY
 
-### x402 Configuration (Optional)
+### x402 Configuration
 For micropayment functionality, also set:
 ```bash
 export X402_WALLET_ADDRESS="your-wallet-address"
-export X402_NETWORK="base"  # or "base-sepolia" for testnet
-export X402_PRICE="0.01"    # Price in USD per query
+export X402_NETWORK="base"
+export X402_PRICE="0.01"
 export CDP_API_KEY_ID="your-cdp-key-id"
 export CDP_API_KEY_SECRET="your-cdp-secret"
 ```
@@ -73,36 +74,14 @@ Example queries:
 - "SOL hourly data for last week"
 - "Покажи цены BTC за последнюю неделю" (Russian supported)
 
-### get_historical_prices
-
-Get historical price data for specified cryptocurrency (direct API call).
-
-Parameters:
-- `index` (required): Cryptocurrency symbol (e.g., "BTC", "ETH", "SOL")
-- `granularity`: Time interval ("ONE_DAY" or "ONE_HOUR")
-- `start` (required): Start date in ISO 8601 format
-- `end`: End date in ISO 8601 format (optional)
-
-Example request:
-```json
-{
-  "index": "BTC",
-  "granularity": "ONE_DAY", 
-  "start": "2024-01-01T00:00:00Z",
-  "end": "2024-01-31T00:00:00Z"
-}
-```
-
 ## Features
 
-- 🤖 **MCP Integration** - Works with AI assistants (Claude, ChatGPT, etc.)
-- 💰 **x402 Micropayments** - Monetize your data with crypto payments
-- 🌍 **Multi-language** - Supports English and Russian queries
-- 📊 **Real-time Data** - Live price data from Coinbase Pro
-- ⚡ **Fast API** - REST endpoints with payment protection
+- 💰 **x402 Micropayments** - Crypto payments for API access
+- 🌍 **Multi-language** - English and Russian query support  
+- 📊 **Real-time Data** - Live Coinbase price data
 - 🔍 **Smart Parsing** - Natural language to API parameters
-- 📈 **Multiple Timeframes** - Hourly and daily data
 - 🚀 **Bazaar Ready** - Auto-discovery for x402 marketplace
+- 🐳 **Docker Ready** - Easy Railway deployment
 
 ## Supported Cryptocurrencies
 

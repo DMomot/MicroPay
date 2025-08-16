@@ -1,8 +1,0 @@
-{
-  "mcpServers": {
-    "coinbase-price-agent": {
-      "command": "python",
-      "args": ["-m", "coinbase_price_agent.server"]
-    }
-  }
-}

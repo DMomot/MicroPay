@@ -1,0 +1,25 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "DOCKERFILE"
+  },
+  "deploy": {
+    "startCommand": "python -m coinbase_price_agent.x402_server",
+    "healthcheckPath": "/health",
+    "healthcheckTimeout": 100,
+    "restartPolicyType": "ON_FAILURE"
+  },
+  "environments": {
+    "production": {
+      "variables": {
+        "PORT": "8080",
+        "X402_WALLET_ADDRESS": "0xce465C087305314F8f0eaD5A450898f19eFD0E03",
+        "X402_PRICE": "0.01",
+        "X402_NETWORK": "base",
+        "X402_ASSET": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "FORCE_HTTPS": "true",
+        "BASE_URL": "https://price-agent.up.railway.app"
+      }
+    }
+  }
+}

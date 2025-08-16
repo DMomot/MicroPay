@@ -18,5 +18,4 @@ dependencies = [
 ]
 
 [project.scripts]
-coinbase-price-agent = "coinbase_price_agent.server:main"
-coinbase-price-agent-x402 = "coinbase_price_agent.x402_server:main"
+coinbase-price-agent = "coinbase_price_agent.x402_server:main"
