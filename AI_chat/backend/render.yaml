@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: x402-hello-agent
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python x402_hello_agent.py
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: X402_WALLET_ADDRESS
+        value: 0x021028695EAfDDe60E139D87000a8bd6cB65645e

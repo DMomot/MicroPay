@@ -1,0 +1,57 @@
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+import google.generativeai as genai
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+app = FastAPI(title="AI Chat Bot API", version="1.0.0")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
+
+# Загружаем системный промпт из файла
+def load_prompt(prompt_name='system_prompt'):
+    try:
+        with open(f'prompts/{prompt_name}.txt', 'r', encoding='utf-8') as f:
+            return f.read()
+    except FileNotFoundError:
+        return "Ты дружелюбный AI ассистент. Отвечай на русском языке."
+
+SYSTEM_PROMPT = load_prompt()
+
+model = genai.GenerativeModel('gemini-2.0-flash')
+
+class ChatMessage(BaseModel):
+    message: str
+
+@app.get("/")
+async def root():
+    return {"message": "AI Chat Bot API is running"}
+
+@app.post("/api/chat")
+async def chat(chat_message: ChatMessage):
+    if not chat_message.message:
+        raise HTTPException(status_code=400, detail="Сообщение не может быть пустым")
+    
+    try:
+        # Объединяем системный промпт с сообщением пользователя
+        full_prompt = SYSTEM_PROMPT + "\n\nПользователь: " + chat_message.message
+        response = model.generate_content(full_prompt)
+        return {"response": response.text}
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail=f"Ошибка генерации ответа: {str(e)}")
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
