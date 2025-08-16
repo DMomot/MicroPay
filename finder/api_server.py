@@ -36,6 +36,7 @@ class SearchRequest(BaseModel):
     min_rating: Optional[float] = 0.5
 
 class AgentInfo(BaseModel):
+    name: str
     resource: str
     description: str
     price_usdc: str

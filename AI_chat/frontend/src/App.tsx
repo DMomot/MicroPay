@@ -1,19 +1,30 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { WalletConnection } from './WalletConnection';
 import './App.css';
+
+interface Agent {
+  name?: string;
+  resource: string;
+  description: string;
+  price_usdc: string;
+  network: string;
+  rating: number;
+}
 
 interface Message {
   id: number;
   content: string;
   isUser: boolean;
   timestamp: Date;
+  agents?: Agent[];
+  optimizedPrompt?: string;
 }
 
 function App() {
+
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
-      content: 'Привет! Я AI бот на основе Gemini. Чем могу помочь?',
+      content: 'Hello! I am an AI bot powered by Gemini. How can I help you?',
       isUser: false,
       timestamp: new Date()
     }
@@ -45,50 +56,51 @@ function App() {
     setIsLoading(true);
 
     try {
-      // Step 1: Summarize user message to short prompt
       const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
-      const summarizeResponse = await fetch(`${apiUrl}/api/chat`, {
+      const response = await fetch(`${apiUrl}/api/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
-          message: `You are a prompt optimizer. Take this user message and reduce it to a short, clear search prompt (max 10 words) that captures the core intent. Focus on key terms and actions. User message: "${inputMessage}"` 
-        }),
+        body: JSON.stringify({ message: inputMessage }),
       });
 
-      if (!summarizeResponse.ok) {
-        throw new Error('Failed to summarize prompt');
+      if (!response.ok) {
+        throw new Error('Network error');
       }
 
-      const summarizeData = await summarizeResponse.json();
-      const shortPrompt = summarizeData.response;
-
-      // Step 2: Search for agents with the short prompt
-      const searchResponse = await fetch('http://ai_finder.railway.internal/search', {
-        method: 'POST',
-        headers: {
-          'accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          prompt: shortPrompt,
-          max_results: 10,
-          min_rating: 0.5
-        }),
-      });
-
-      if (!searchResponse.ok) {
-        throw new Error('Failed to search agents');
-      }
-
-      const agentsData = await searchResponse.json();
+      const data = await response.json();
       
+      // Create main response message
+      let content = data.response;
+      
+      // Prepare agents data for the message
+      let agents: Agent[] = [];
+      let optimizedPrompt = '';
+      
+      if (data.needs_agents && data.agents && data.agents.agents) {
+        const actualAgentsCount = data.agents.agents.length;
+        if (actualAgentsCount > 0) {
+          agents = data.agents.agents;
+          optimizedPrompt = data.optimized_prompt;
+          content += `\n\n🤖 **Found ${actualAgentsCount} suitable agents for:** "${data.optimized_prompt}"`;
+        } else {
+          content += `\n\n🤖 No suitable agents found for: "${data.optimized_prompt}"`;
+        }
+      }
+      
+      // Add error message if agent search failed
+      if (data.agent_search_error) {
+        content += `\n\n⚠️ Agent search error: ${data.agent_search_error}`;
+      }
+
       const botMessage: Message = {
         id: Date.now() + 1,
-        content: `Found ${agentsData.length} suitable agents for: "${shortPrompt}"\n\n${JSON.stringify(agentsData, null, 2)}`,
+        content: content,
         isUser: false,
-        timestamp: new Date()
+        timestamp: new Date(),
+        agents: agents,
+        optimizedPrompt: optimizedPrompt
       };
 
       setMessages(prev => [...prev, botMessage]);
@@ -112,13 +124,33 @@ function App() {
     }
   };
 
+  const AgentCard = ({ agent }: { agent: Agent }) => {
+    const name = agent.name || 'Unknown Agent';
+    const price = agent.price_usdc ? `${(parseInt(agent.price_usdc) / 1000000).toFixed(2)} USDC` : 'Free';
+    
+    return (
+      <div className="agent-card">
+        <div className="agent-header">
+          <h3>{name}</h3>
+        </div>
+        <p className="agent-description">{agent.description}</p>
+        <div className="agent-details">
+          <span className="agent-price">{price}</span>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="app">
       <div className="container">
         <header className="header">
-          <h1>AI Бот</h1>
-          <p>Powered by Gemini</p>
-          <WalletConnection />
+          <div className="header-content">
+            <div className="header-text">
+              <h1>AI Agent Finder</h1>
+              <p>Powered by Gemini</p>
+            </div>
+          </div>
         </header>
         
         <div className="chat-container">
@@ -129,13 +161,25 @@ function App() {
                 className={`message ${message.isUser ? 'user-message' : 'bot-message'}`}
               >
                 <div className="message-content">
-                  {message.content}
+                  {message.content.split('\n').map((line, index) => (
+                    <React.Fragment key={index}>
+                      {line}
+                      {index < message.content.split('\n').length - 1 && <br />}
+                    </React.Fragment>
+                  ))}
                 </div>
+                {message.agents && message.agents.length > 0 && (
+                  <div className="agents-container">
+                    {message.agents.map((agent, index) => (
+                      <AgentCard key={index} agent={agent} />
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
             {isLoading && (
               <div className="typing-indicator">
-                <div className="typing-text">AI печатает</div>
+                <div className="typing-text">AI is typing</div>
                 <div className="typing-dots">
                   <div className="typing-dot"></div>
                   <div className="typing-dot"></div>
@@ -153,7 +197,7 @@ function App() {
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Введите сообщение..."
+                placeholder="Enter message..."
                 disabled={isLoading}
                 autoComplete="off"
               />

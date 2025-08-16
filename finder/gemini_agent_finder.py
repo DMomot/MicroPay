@@ -182,6 +182,7 @@ RATING: [number from 0.0 to 1.0]
         accepts = agent.get('accepts', [{}])[0]
         
         return {
+            'name': accepts.get('description', 'Unknown Agent'),
             'resource': agent.get('resource'),
             'description': accepts.get('description'),
             'price_usdc': accepts.get('maxAmountRequired'),
@@ -218,6 +219,7 @@ RATING: [number from 0.0 to 1.0]
                 emoji = "⚠️"
             
             print(f"{emoji} #{i} | Rating: {agent['rating']}")
+            print(f"🏷️  Name: {agent['name']}")
             print(f"📡 Resource: {agent['resource']}")
             print(f"📝 Description: {agent['description']}")
             
