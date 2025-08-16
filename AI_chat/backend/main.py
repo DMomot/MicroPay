@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import google.generativeai as genai
+# import google.generativeai as genai
 import os
 from dotenv import load_dotenv
 
@@ -39,7 +39,17 @@ class ChatMessage(BaseModel):
 
 @app.get("/")
 async def root():
-    return {"message": "AI Chat Bot API is running"}
+    return {
+        "message": "AI Chat Bot API is running",
+        "status": "healthy",
+        "service": "ai_chat_backend",
+        "version": "1.0.0",
+        "endpoints": ["/api/chat"]
+    }
+
+@app.get("/health")
+async def health():
+    return {"status": "healthy"}
 
 @app.post("/api/chat")
 async def chat(chat_message: ChatMessage):
@@ -57,4 +67,5 @@ async def chat(chat_message: ChatMessage):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)

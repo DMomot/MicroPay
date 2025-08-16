@@ -5,15 +5,12 @@
   },
   "deploy": {
     "startCommand": "python main.py",
-    "healthcheckPath": "/",
-    "healthcheckTimeout": 100,
     "restartPolicyType": "ON_FAILURE"
   },
   "environments": {
     "production": {
       "variables": {
         "PORT": "8000",
-        "GEMINI_API_KEY": "{{ GEMINI_API_KEY }}",
         "CORS_ORIGINS": "{{ CORS_ORIGINS }}",
         "FORCE_HTTPS": "true"
       }

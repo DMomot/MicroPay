@@ -7,11 +7,11 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Копируем код приложения
-COPY x402_hello_agent.py .
-COPY .env .
+COPY main.py .
+COPY prompts/ ./prompts/
 
 # Экспонируем порт
-EXPOSE 8001
+EXPOSE 8000
 
-# Запускаем агента
-CMD ["python", "x402_hello_agent.py"]
+# Запускаем сервер
+CMD ["python", "main.py"]
