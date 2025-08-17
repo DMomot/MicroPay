@@ -137,11 +137,17 @@ class BlockchainAnalyst:
             agent_names = [agent.get("name", "Unknown") for agent in relevant_agents]
             logger.info(f"✅ Found {len(relevant_agents)} agents: {agent_names}")
             
+            # Step 2.5: Get x402 metadata and optimize agent selection
+            logger.info("🔍 STEP 2.5: Getting x402 metadata and optimizing agent selection...")
+            optimized_agents = await self._get_x402_metadata_and_optimize(relevant_agents)
+            optimized_names = [agent.get("name", "Unknown") for agent in optimized_agents]
+            logger.info(f"✅ Optimized to {len(optimized_agents)} agents: {optimized_names}")
+            
             # Step 3: Gather data from agents
             logger.info("📡 STEP 3: Gathering data from agents...")
             # Transform user query for price agents
             price_query = self._transform_query_for_prices(user_query)
-            collected_data = await self._gather_data(relevant_agents, price_query)
+            collected_data = await self._gather_data(optimized_agents, price_query)
             successful_data = sum(1 for data in collected_data.values() if "error" not in data)
             logger.info(f"📊 Data collection complete: {successful_data}/{len(collected_data)} successful")
             
@@ -182,83 +188,12 @@ class BlockchainAnalyst:
             }
     
     async def _identify_data_needs(self, query: str) -> List[str]:
-        """Identify what type of data is needed for the analysis"""
+        """Always return only price_data for analysis"""
         
         logger.info(f"🔍 Analyzing query to identify data needs: '{query}'")
+        logger.info("📈 Using only price data for analysis")
         
-        prompt = f"""
-        Analyze this blockchain/crypto query and identify what types of data are needed:
-        
-        Query: "{query}"
-        
-        Possible data types:
-        - price_data: Historical or current cryptocurrency prices
-        - market_data: Market cap, volume, trading data
-        - defi_data: DeFi protocol information, yields, TVL
-        - nft_data: NFT collection data, floor prices, sales
-        - news_data: Recent news and market sentiment
-        - technical_data: Technical indicators, chart analysis
-        - on_chain_data: Blockchain metrics, transactions, addresses
-        
-        Return only a JSON list of needed data types, like: ["price_data", "market_data"]
-        """
-        
-        try:
-            if not self.model:
-                logger.warning("⚠️ Gemini model not configured, using fallback analysis")
-                raise Exception("Gemini model not configured")
-            
-            logger.info("🤖 Using Gemini to identify data requirements...")
-            
-            # Run Gemini in thread pool since it's not async
-            loop = asyncio.get_event_loop()
-            response = await loop.run_in_executor(
-                None,
-                lambda: self.model.generate_content(
-                    f"You are a data analyst. Return only valid JSON.\n\n{prompt}",
-                    generation_config=genai.types.GenerationConfig(
-                        max_output_tokens=200,
-                        temperature=0.1
-                    )
-                )
-            )
-            
-            result = response.text.strip()
-            logger.info(f"🤖 Gemini response: {result}")
-            
-            # Clean up response (remove markdown formatting if present)
-            if result.startswith('```json'):
-                result = result.replace('```json', '').replace('```', '').strip()
-            elif result.startswith('```'):
-                result = result.replace('```', '').strip()
-            
-            parsed_result = json.loads(result)
-            logger.info(f"✅ Parsed data requirements: {parsed_result}")
-            return parsed_result
-            
-        except Exception as e:
-            logger.warning(f"⚠️ Gemini analysis failed ({e}), using keyword-based fallback")
-            
-            # Fallback to basic analysis
-            query_lower = query.lower()
-            needs = []
-            
-            if any(word in query_lower for word in ["price", "cost", "value", "worth"]):
-                needs.append("price_data")
-                logger.info("📈 Detected need for price data")
-            if any(word in query_lower for word in ["market", "volume", "cap"]):
-                needs.append("market_data")
-                logger.info("📊 Detected need for market data")
-            if any(word in query_lower for word in ["defi", "yield", "farming", "protocol"]):
-                needs.append("defi_data")
-                logger.info("🏦 Detected need for DeFi data")
-            if any(word in query_lower for word in ["nft", "collection", "floor"]):
-                needs.append("nft_data")
-                logger.info("🖼️ Detected need for NFT data")
-                
-            final_needs = needs if needs else ["price_data"]
-            logger.info(f"✅ Fallback analysis result: {final_needs}")
-            return final_needs
+        return ["price_data"]
     
     async def _find_agents(self, data_requirements: List[str]) -> List[Dict[str, Any]]:
         """Find agents that can provide the required data using the finder service"""
@@ -276,7 +211,7 @@ class BlockchainAnalyst:
                     json={
                         "prompt": search_query,
                         "max_results": 5,
-                        "min_rating": 0.3
+                        "min_rating": 0.8  # Повышаем для более строгого соответствия
                     },
                     headers={"Content-Type": "application/json"}
                 )
@@ -318,7 +253,7 @@ class BlockchainAnalyst:
         if "week" in query_lower:
             time_period = "1 week"
         elif "month" in query_lower:
-            if "two months" in query_lower or "2 months" in query_lower:
+            if "two month" in query_lower or "2 month" in query_lower or "two months" in query_lower or "2 months" in query_lower:
                 time_period = "2 months"
             else:
                 time_period = "1 month"
@@ -330,6 +265,132 @@ class BlockchainAnalyst:
         logger.info(f"🔄 Transformed query: '{user_query}' → '{price_query}'")
         
         return price_query
+    
+    async def _get_x402_metadata_and_optimize(self, agents: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Get x402 metadata for each agent and optimize selection based on capabilities and cost
+        
+        Args:
+            agents: List of agents from finder
+            
+        Returns:
+            Optimized list of agents with x402 metadata
+        """
+        optimized_agents = []
+        
+        logger.info(f"🔍 Getting x402 metadata for {len(agents)} agents...")
+        
+        for agent in agents:
+            agent_name = agent.get("name", "Unknown Agent")
+            try:
+                # Extract base URL from resource
+                resource = agent.get("resource", "")
+                if not resource:
+                    logger.warning(f"❌ {agent_name}: No resource URL provided")
+                    continue
+                
+                # Construct base URL for x402 discovery
+                if resource.startswith("http"):
+                    # Extract domain from full URL
+                    from urllib.parse import urlparse
+                    parsed = urlparse(resource)
+                    base_url = f"{parsed.scheme}://{parsed.netloc}"
+                else:
+                    # Handle different resource formats
+                    if resource.startswith("/"):
+                        logger.warning(f"⚠️ {agent_name}: Resource is path only: {resource}")
+                        continue
+                    else:
+                        base_url = f"https://{resource.split('/')[0]}"
+                
+                logger.info(f"🔍 {agent_name}: Getting x402 metadata from {base_url}")
+                
+                # Get x402 metadata using our client
+                x402_metadata = await self.x402_client.discover_agent_capabilities(base_url)
+                
+                if x402_metadata:
+                    # Log raw x402 metadata for debugging
+                    logger.info(f"🔍 {agent_name}: Raw x402 metadata: {x402_metadata}")
+                    
+                    # Enrich agent data with x402 metadata
+                    enriched_agent = agent.copy()
+                    enriched_agent["x402_metadata"] = x402_metadata
+                    
+                    # Extract payment information from x402 metadata
+                    # x402 metadata structure can vary, let's handle different formats
+                    accepts = x402_metadata.get("accepts", [])
+                    if not accepts:
+                        # Try alternative structure - endpoints with accepts
+                        endpoints = x402_metadata.get("endpoints", [])
+                        if endpoints:
+                            accepts = [endpoints[0].get("accepts", {})]
+                        else:
+                            # Try resources structure
+                            accepts = x402_metadata.get("resources", [])
+                    
+                    if accepts:
+                        payment_option = accepts[0]  # Use first payment option
+                        enriched_agent["payment_required"] = int(payment_option.get("maxAmountRequired", payment_option.get("amount", "0")))
+                        enriched_agent["payment_network"] = payment_option.get("network", "base")
+                        enriched_agent["payment_asset"] = payment_option.get("asset", payment_option.get("currency", ""))
+                        enriched_agent["pay_to"] = payment_option.get("payTo", payment_option.get("address", ""))
+                        enriched_agent["description"] = payment_option.get("description", agent.get("description", ""))
+                        
+                        # Log detailed payment info for debugging
+                        logger.info(f"💰 {agent_name}: Payment details from x402:")
+                        logger.info(f"   - Amount: {enriched_agent['payment_required']} wei")
+                        logger.info(f"   - Network: {enriched_agent['payment_network']}")
+                        logger.info(f"   - Asset: {enriched_agent['payment_asset']}")
+                        logger.info(f"   - Pay to: {enriched_agent['pay_to']}")
+                    else:
+                        # No payment info found, set defaults
+                        enriched_agent["payment_required"] = 0
+                        enriched_agent["payment_network"] = "base"
+                        enriched_agent["payment_asset"] = ""
+                        enriched_agent["pay_to"] = ""
+                        logger.warning(f"⚠️ {agent_name}: No payment info found in x402 metadata")
+                    
+                    optimized_agents.append(enriched_agent)
+                    logger.info(f"✅ {agent_name}: x402 metadata retrieved successfully")
+                else:
+                    logger.warning(f"⚠️ {agent_name}: Failed to get x402 metadata")
+                    # Still include agent but without x402 metadata
+                    agent_copy = agent.copy()
+                    agent_copy["x402_metadata"] = None
+                    optimized_agents.append(agent_copy)
+                    
+            except Exception as e:
+                logger.error(f"❌ {agent_name}: Error getting x402 metadata - {e}")
+                # Include agent without metadata
+                agent_copy = agent.copy()
+                agent_copy["x402_metadata"] = None
+                optimized_agents.append(agent_copy)
+                continue
+        
+        # Sort agents by payment cost (cheaper first) and capabilities
+        def agent_score(agent):
+            # Prefer agents with x402 metadata
+            if agent.get("x402_metadata"):
+                payment_cost = agent.get("payment_required", float('inf'))
+                # Lower cost = better score
+                return payment_cost
+            else:
+                # Agents without x402 metadata get lower priority
+                return float('inf')
+        
+        optimized_agents.sort(key=agent_score)
+        
+        # Limit to top 3 agents to control costs
+        optimized_agents = optimized_agents[:3]
+        
+        logger.info(f"🎯 Optimized agent selection:")
+        for i, agent in enumerate(optimized_agents, 1):
+            name = agent.get("name", "Unknown")
+            cost = agent.get("payment_required", "unknown")
+            network = agent.get("payment_network", "unknown")
+            logger.info(f"  {i}. {name}: {cost} wei on {network}")
+        
+        return optimized_agents
     
     async def _gather_data(self, agents: List[Dict[str, Any]], query: str) -> Dict[str, Any]:
         """Gather data from the found agents using x402 payments"""
@@ -352,7 +413,7 @@ class BlockchainAnalyst:
                     collected_data[agent_name] = {"error": "No resource URL provided"}
                     continue
                 
-                # Construct full agent URL
+                # Construct agent URL
                 if resource.startswith("http"):
                     agent_url = resource
                 else:
@@ -371,13 +432,24 @@ class BlockchainAnalyst:
                 
                 logger.info(f"🔗 {agent_name}: Attempting to connect to {agent_url}")
                 
-                # Try to make x402 paid request
-                payment_info = {
-                    "price": agent.get("price_usdc", "0.01"),
-                    "network": agent.get("network", "base"),
-                    "asset": agent.get("asset_address", ""),
-                    "pay_to": agent.get("pay_to_address", "")
-                }
+                # Use enriched payment info from x402 metadata if available
+                if agent.get("x402_metadata"):
+                    payment_info = {
+                        "amount": agent.get("payment_required", "0"),
+                        "network": agent.get("payment_network", "base"),
+                        "asset": agent.get("payment_asset", ""),
+                        "pay_to": agent.get("pay_to", "")
+                    }
+                    logger.info(f"💰 {agent_name}: Using x402 metadata - {payment_info['amount']} wei on {payment_info['network']}")
+                else:
+                    # Fallback to finder data
+                    payment_info = {
+                        "price": agent.get("price_usdc", "0.01"),
+                        "network": agent.get("network", "base"),
+                        "asset": agent.get("asset_address", ""),
+                        "pay_to": agent.get("pay_to_address", "")
+                    }
+                    logger.info(f"💰 {agent_name}: Using finder data - fallback payment info")
                 
                 result = await self.x402_client.make_paid_request(
                     agent_url, 

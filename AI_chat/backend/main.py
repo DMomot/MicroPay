@@ -5,6 +5,7 @@ import google.generativeai as genai
 import os
 import requests
 from dotenv import load_dotenv
+from urllib.parse import urlencode
 
 load_dotenv()
 
@@ -36,6 +37,47 @@ PROMPT_OPTIMIZER = load_prompt('prompt_optimizer')
 AGENT_DETECTOR = load_prompt('agent_detector')
 
 model = genai.GenerativeModel('gemini-2.0-flash')
+
+def add_query_to_agents(agents_data, user_query):
+    """
+    Add query parameters to agent URLs for frontend convenience
+    
+    Args:
+        agents_data: Response from finder service with agents
+        user_query: Original user query to add as parameter
+        
+    Returns:
+        Modified agents data with query parameters added to URLs
+    """
+    if not isinstance(agents_data, dict) or 'agents' not in agents_data:
+        return agents_data
+    
+    modified_agents = []
+    
+    for agent in agents_data.get('agents', []):
+        # Create a copy of the agent
+        modified_agent = agent.copy()
+        
+        # Add query parameter to the resource URL
+        resource = agent.get('resource', '')
+        if resource and user_query:
+            # Add query parameter to URL
+            query_params = {'query': user_query}
+            if '?' in resource:
+                # URL already has parameters
+                resource_with_query = f"{resource}&{urlencode(query_params)}"
+            else:
+                # Clean URL, add query parameter
+                resource_with_query = f"{resource}?{urlencode(query_params)}"
+            
+            modified_agent['resource'] = resource_with_query
+        
+        modified_agents.append(modified_agent)
+    
+    # Return modified data
+    result = agents_data.copy()
+    result['agents'] = modified_agents
+    return result
 
 class ChatMessage(BaseModel):
     message: str
@@ -99,10 +141,14 @@ async def chat(chat_message: ChatMessage):
                 
                 if search_response.status_code == 200:
                     agents_data = search_response.json()
+                    
+                    # Add query parameters to agent URLs for frontend convenience
+                    agents_with_query = add_query_to_agents(agents_data, chat_message.message)
+                    
                     response_data.update({
                         "optimized_prompt": short_prompt,
-                        "agents_found": len(agents_data),
-                        "agents": agents_data
+                        "agents_found": len(agents_data.get('agents', [])),
+                        "agents": agents_with_query
                     })
                 else:
                     response_data["agent_search_error"] = f"Search failed: {search_response.status_code}"

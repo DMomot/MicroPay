@@ -5,7 +5,7 @@ from typing import List, Dict, Optional
 import google.generativeai as genai
 from dotenv import load_dotenv
 from bazaar_scout import BazaarScout
-from urllib.parse import urlencode
+
 
 load_dotenv()
 
@@ -178,52 +178,14 @@ RATING: [number from 0.0 to 1.0]
             print(f"❌ Error analyzing with Gemini: {e}")
             return 0.0
     
-    def _generate_query_params(self, user_prompt: str, agent_description: str) -> str:
-        """Generate query parameters based on user prompt and agent description"""
-        try:
-            query_prompt = f"""
-Based on the user request and agent description, generate appropriate query parameters for the API call.
-
-USER REQUEST: "{user_prompt}"
-AGENT DESCRIPTION: "{agent_description}"
-
-Generate a concise query parameter that would be suitable for this API endpoint.
-The query should be specific to what the user wants to achieve with this agent.
-
-Examples:
-- If user wants "Bitcoin price", generate: "Bitcoin price"
-- If user wants "weather in Moscow", generate: "weather in Moscow"  
-- If user wants "generate image of cat", generate: "generate image of cat"
-
-IMPORTANT: Return ONLY the query text, no additional formatting or explanation.
-"""
-            
-            response = self.model.generate_content(query_prompt)
-            query_text = response.text.strip()
-            
-            # Clean up the response - remove quotes and extra formatting
-            query_text = query_text.strip('"\'`')
-            
-            return query_text
-            
-        except Exception as e:
-            print(f"❌ Error generating query params: {e}")
-            # Fallback to user prompt
-            return user_prompt
 
     def _format_agent_info(self, agent: Dict, rating: float, user_prompt: str = "") -> Dict:
-        """Format agent information with query parameters"""
+        """Format agent information without query parameters (agents should handle queries themselves)"""
         accepts = agent.get('accepts', [{}])[0]
         base_resource = agent.get('resource')
         
-        # Generate query parameters if user prompt is provided
-        if user_prompt and base_resource:
-            query_text = self._generate_query_params(user_prompt, accepts.get('description', ''))
-            # Add query parameter to the resource URL
-            query_params = {'query': query_text}
-            resource_with_query = f"{base_resource}?{urlencode(query_params)}"
-        else:
-            resource_with_query = base_resource
+        # Don't add query parameters - let agents handle their own queries
+        resource_with_query = base_resource
         
         return {
             'name': accepts.get('description', 'Unknown Agent'),
