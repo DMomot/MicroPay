@@ -1,6 +1,6 @@
-# CCTP Transfer and Burn Contract
+# MicroPay CCTP Smart Contracts
 
-🚀 Простой контракт для выполнения EIP3009 transfer и CCTP burn в одной транзакции на BASE сети.
+🚀 Solidity контракты для MicroPay платежной системы. Выполняют EIP3009 transfer и CCTP burn в одной транзакции для seamless cross-chain USDC переводов.
 
 ## ✨ Функциональность
 
