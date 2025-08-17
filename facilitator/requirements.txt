@@ -1,0 +1,10 @@
+fastapi>=0.104.1
+uvicorn>=0.24.0
+web3>=6.11.3
+pydantic>=2.8.0
+python-dotenv>=1.0.0
+httpx>=0.25.2
+loguru>=0.7.2
+python-multipart>=0.0.6
+# slowapi>=0.1.9  # Removed for MVP simplicity
+# redis>=5.0.1     # Not needed without slowapi

@@ -140,3 +140,4 @@ class X402Client:
         except Exception as e:
             logger.error(f"💥 Error getting agent info: {e}")
             return None
+
