@@ -30,7 +30,7 @@ def load_prompt(prompt_name='system_prompt'):
         with open(f'prompts/{prompt_name}.txt', 'r', encoding='utf-8') as f:
             return f.read()
     except FileNotFoundError:
-        return "Ты дружелюбный AI ассистент. Отвечай на русском языке."
+        return "You are a friendly AI assistant. Always respond in English only."
 
 SYSTEM_PROMPT = load_prompt()
 PROMPT_OPTIMIZER = load_prompt('prompt_optimizer')
@@ -103,7 +103,7 @@ async def chat(chat_message: ChatMessage):
     
     try:
         # Step 1: Generate response to user
-        full_prompt = SYSTEM_PROMPT + "\n\nПользователь: " + chat_message.message
+        full_prompt = SYSTEM_PROMPT + "\n\nUser: " + chat_message.message
         chat_response = model.generate_content(full_prompt)
         user_response = chat_response.text
         
@@ -129,7 +129,7 @@ async def chat(chat_message: ChatMessage):
                 search_payload = {
                     "prompt": short_prompt,
                     "max_results": 10,
-                    "min_rating": 0.5
+                    "min_rating": 0.8
                 }
                 
                 search_response = requests.post(

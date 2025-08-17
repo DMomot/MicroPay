@@ -2,7 +2,7 @@ import os
 import asyncio
 import logging
 from typing import Dict, Any, Optional
-from x402.clients.httpx import x402HttpxClient
+from x402.clients.requests import x402_requests
 from eth_account import Account
 from dotenv import load_dotenv
 
@@ -27,10 +27,15 @@ class X402Client:
         
         logger.info(f"🔑 Initialized X402Client with wallet: {self.account.address}")
         
-        # Create x402 HTTP client
-        self.client = x402HttpxClient(self.account, timeout=self.timeout)
+        # Create x402 requests session
+        try:
+            self.session = x402_requests(self.account)
+            logger.info(f"✅ x402 client initialized successfully")
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize x402 client: {e}")
+            raise
         
-    async def make_paid_request(
+    def make_paid_request(
         self, 
         agent_url: str, 
         query: str, 
@@ -48,25 +53,33 @@ class X402Client:
             Response data from the agent or None if failed
         """
         try:
-            # Clean agent_url and add user query
-            logger.info(f"🔍 Original agent_url: {agent_url}")
-            logger.info(f"🔍 Query to add: {query}")
+            # Build request URL with query parameter
+            logger.info(f"🔍 Agent URL: {agent_url}")
+            logger.info(f"🔍 Query: {query}")
+            logger.info(f"🔑 Using wallet address: {self.account.address}")
             
-            # Remove existing query parameters from agent_url
-            if "?" in agent_url:
-                base_url = agent_url.split("?")[0]
-            else:
-                base_url = agent_url
-                
-            # Add only our query parameter
-            request_url = f"{base_url}?query={query}"
+            # Simple URL construction like in simple_x402_test.py
+            request_url = f"{agent_url}?query={query}"
             
             logger.info(f"🔗 Making x402 request to: {request_url}")
             
-            # Use official x402 client - it handles 402 responses automatically
-            response = await self.client.get(request_url)
+            # Use x402 session to make request
+            logger.info("🚀 Sending request via x402 session...")
+            logger.info(f"🔍 x402 session type: {type(self.session)}")
+            logger.info(f"🔍 Request URL: {request_url}")
+            
+            # The x402 session automatically handles 402 responses and payments
+            response = self.session.get(request_url)
             
             logger.info(f"📡 Response status: {response.status_code}")
+            logger.info(f"📡 Response headers: {dict(response.headers)}")
+            
+            # Log response body for debugging
+            try:
+                response_text = response.text
+                logger.info(f"📄 Response body preview: {response_text[:200]}...")
+            except:
+                logger.info("📄 Could not read response body")
             
             if response.status_code == 200:
                 try:
@@ -76,6 +89,24 @@ class X402Client:
                 except Exception as e:
                     logger.error(f"❌ Failed to parse JSON response: {e}")
                     return {"error": f"Invalid JSON response: {e}", "raw_response": response.text}
+            elif response.status_code == 402:
+                # 402 Payment Required - this should be handled automatically by x402 library
+                logger.error(f"❌ x402 library failed to handle 402 payment automatically")
+                logger.error(f"❌ This indicates a problem with the x402 client setup or payment processing")
+                
+                # Log detailed 402 response for debugging
+                logger.info(f"🔍 402 Response headers: {dict(response.headers)}")
+                www_auth = response.headers.get('WWW-Authenticate', 'Not found')
+                logger.info(f"🔍 WWW-Authenticate header: {www_auth}")
+                
+                try:
+                    error_data = response.json()
+                    logger.info(f"🔍 402 Response body: {error_data}")
+                    return {"error": f"Payment required but not processed: {response.status_code}", "details": error_data}
+                except:
+                    error_text = response.text
+                    logger.info(f"🔍 402 Response text: {error_text}")
+                    return {"error": f"Payment required but not processed: {response.status_code}", "raw_response": error_text}
             else:
                 logger.error(f"❌ Request failed with status {response.status_code}")
                 try:
@@ -89,7 +120,7 @@ class X402Client:
             return {"error": f"Request failed: {str(e)}", "agent_url": agent_url}
 
     
-    async def discover_agent_capabilities(self, agent_base_url: str) -> Optional[Dict[str, Any]]:
+    def discover_agent_capabilities(self, agent_base_url: str) -> Optional[Dict[str, Any]]:
         """
         Discover agent capabilities via x402 discovery endpoint
         
@@ -102,7 +133,7 @@ class X402Client:
         try:
             discovery_url = f"{agent_base_url}/.well-known/x402"
             
-            response = await self.client.get(discovery_url)
+            response = self.session.get(discovery_url)
             
             if response.status_code == 200:
                 capabilities = response.json()
@@ -116,7 +147,7 @@ class X402Client:
             logger.error(f"💥 Error discovering agent capabilities: {e}")
             return None
     
-    async def get_agent_info(self, agent_base_url: str) -> Optional[Dict[str, Any]]:
+    def get_agent_info(self, agent_base_url: str) -> Optional[Dict[str, Any]]:
         """
         Get basic agent information from root endpoint
         
@@ -127,7 +158,7 @@ class X402Client:
             Agent info or None if failed
         """
         try:
-            response = await self.client.get(agent_base_url)
+            response = self.session.get(agent_base_url)
             
             if response.status_code == 200:
                 info = response.json()

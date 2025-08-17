@@ -98,6 +98,8 @@ app.add_middleware(UnifiedMiddleware)
 @app.get("/api/prices")
 async def get_prices(query: str):
     """x402 protected endpoint for historical price data"""
+    print(f"🔍 Received query: '{query}'")
+    
     if not COINBASE_API_KEY or not COINBASE_PRIVATE_KEY:
         raise HTTPException(status_code=500, detail="Coinbase API keys not configured")
     
@@ -106,11 +108,17 @@ async def get_prices(query: str):
         parser = QueryParser()
         parsed_params = parser.parse_query(query)
         
+        print(f"📋 Parsed parameters: {parsed_params}")
+        print(f"🎯 Extracted symbol: '{parsed_params['index']}'")
+        print(f"📅 Date range: {parsed_params['start']} to {parsed_params['end']}")
+        
         if not parsed_params["start"]:
             raise HTTPException(status_code=400, detail=f"Failed to parse date from query: '{query}'")
         
         # Get historical data
         client = CoinbaseClient(COINBASE_API_KEY, COINBASE_PRIVATE_KEY)
+        print(f"🚀 Calling Coinbase API with symbol: '{parsed_params['index']}'")
+        
         data = await client.get_historical_prices(
             symbol=parsed_params["index"],
             start=parsed_params["start"],

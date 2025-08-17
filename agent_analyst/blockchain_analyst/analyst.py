@@ -211,7 +211,7 @@ class BlockchainAnalyst:
                     json={
                         "prompt": search_query,
                         "max_results": 5,
-                        "min_rating": 0.8  # Повышаем для более строгого соответствия
+                        "min_rating": 0.8  # Increase for stricter matching
                     },
                     headers={"Content-Type": "application/json"}
                 )
@@ -238,8 +238,31 @@ class BlockchainAnalyst:
     def _transform_query_for_prices(self, user_query: str) -> str:
         """Transform user query into a price data request"""
         
-        # Extract cryptocurrency from query
-        crypto_tokens = ["bitcoin", "btc", "ethereum", "eth", "solana", "sol", "dogecoin", "doge"]
+        # Extract cryptocurrency from query - expanded list
+        crypto_tokens = [
+            "bitcoin", "btc", 
+            "ethereum", "eth", 
+            "solana", "sol", 
+            "dogecoin", "doge",
+            "cardano", "ada",
+            "polygon", "matic",
+            "chainlink", "link",
+            "avalanche", "avax",
+            "polkadot", "dot",
+            "uniswap", "uni",
+            "litecoin", "ltc",
+            "bitcoin cash", "bch",
+            "stellar", "xlm",
+            "cosmos", "atom",
+            "algorand", "algo",
+            "tezos", "xtz",
+            "filecoin", "fil",
+            "aave", "aave",
+            "compound", "comp",
+            "maker", "mkr",
+            "sushi", "sushi",
+            "yearn", "yfi"
+        ]
         found_token = "bitcoin"  # default
         
         query_lower = user_query.lower()
@@ -260,8 +283,35 @@ class BlockchainAnalyst:
         elif "year" in query_lower:
             time_period = "1 year"
         
-        # Create price query
-        price_query = f"{found_token} prices by {time_period}"
+        # Create price query in format that price agent understands better
+        token_mapping = {
+            "bitcoin": "BTC", "btc": "BTC",
+            "ethereum": "ETH", "eth": "ETH", 
+            "solana": "SOL", "sol": "SOL",
+            "dogecoin": "DOGE", "doge": "DOGE",
+            "cardano": "ADA", "ada": "ADA",
+            "polygon": "MATIC", "matic": "MATIC",
+            "chainlink": "LINK", "link": "LINK",
+            "avalanche": "AVAX", "avax": "AVAX",
+            "polkadot": "DOT", "dot": "DOT",
+            "uniswap": "UNI", "uni": "UNI",
+            "litecoin": "LTC", "ltc": "LTC",
+            "bitcoin cash": "BCH", "bch": "BCH",
+            "stellar": "XLM", "xlm": "XLM",
+            "cosmos": "ATOM", "atom": "ATOM",
+            "algorand": "ALGO", "algo": "ALGO",
+            "tezos": "XTZ", "xtz": "XTZ",
+            "filecoin": "FIL", "fil": "FIL",
+            "aave": "AAVE",
+            "compound": "COMP", "comp": "COMP",
+            "maker": "MKR", "mkr": "MKR",
+            "sushi": "SUSHI",
+            "yearn": "YFI", "yfi": "YFI"
+        }
+        
+        crypto_symbol = token_mapping.get(found_token.lower(), "BTC")  # default to Bitcoin
+            
+        price_query = f"Get {crypto_symbol} price data for {time_period}"
         logger.info(f"🔄 Transformed query: '{user_query}' → '{price_query}'")
         
         return price_query
@@ -306,7 +356,7 @@ class BlockchainAnalyst:
                 logger.info(f"🔍 {agent_name}: Getting x402 metadata from {base_url}")
                 
                 # Get x402 metadata using our client
-                x402_metadata = await self.x402_client.discover_agent_capabilities(base_url)
+                x402_metadata = self.x402_client.discover_agent_capabilities(base_url)
                 
                 if x402_metadata:
                     # Log raw x402 metadata for debugging
@@ -451,7 +501,7 @@ class BlockchainAnalyst:
                     }
                     logger.info(f"💰 {agent_name}: Using finder data - fallback payment info")
                 
-                result = await self.x402_client.make_paid_request(
+                result = self.x402_client.make_paid_request(
                     agent_url, 
                     query, 
                     payment_info

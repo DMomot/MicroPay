@@ -6,7 +6,7 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #ffffff;
   min-height: 100vh;
 }
 
@@ -24,7 +24,7 @@ body {
 }
 
 .header {
-  color: white;
+  color: #1f2937;
   margin-bottom: 30px;
 }
 
@@ -229,24 +229,24 @@ body {
   top: 20px;
   right: 20px;
   z-index: 1000;
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  color: #374151;
   padding: 12px 20px;
   border-radius: 16px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 600;
   transition: all 0.3s ease;
-  backdrop-filter: blur(20px);
   text-transform: none;
   letter-spacing: 0.5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .connect-wallet-btn:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: #e5e7eb;
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 
 .wallet-info {
@@ -254,29 +254,29 @@ body {
   top: 20px;
   right: 20px;
   z-index: 1000;
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
   border-radius: 16px;
   padding: 12px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 15px;
-  backdrop-filter: blur(20px);
   max-width: 280px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .wallet-address {
-  color: white;
+  color: #374151;
   font-size: 14px;
   font-weight: 500;
   font-family: 'Courier New', monospace;
 }
 
 .disconnect-btn {
-  background: rgba(255, 59, 48, 0.6);
-  border: 1px solid rgba(255, 59, 48, 0.8);
-  color: white;
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  color: #dc2626;
   padding: 6px 12px;
   border-radius: 8px;
   cursor: pointer;
@@ -286,14 +286,14 @@ body {
 }
 
 .disconnect-btn:hover {
-  background: rgba(255, 59, 48, 0.8);
-  border-color: rgba(255, 59, 48, 1);
+  background: #fecaca;
+  border-color: #f87171;
 }
 
 
 
 .wallet-section button {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: #3b82f6;
   border: none;
   color: white;
   padding: 12px 24px;
@@ -304,13 +304,13 @@ body {
   transition: all 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
 }
 
 .wallet-section button:hover {
-  background: linear-gradient(135deg, #764ba2, #667eea);
+  background: #2563eb;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
 }
 
 @media (max-width: 640px) {

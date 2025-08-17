@@ -51,12 +51,16 @@ EXAMPLES:
             "end": ""
         }
         
-        # Parse index/symbol
+        # Parse index/symbol - handle underscores from agent queries
+        print(f"🔍 Parsing query for crypto symbol: '{query}'")
+        
         index_patterns = [
             r'\b(COIN50|BTC|ETH|SOL|DOGE|ADA|DOT|LINK|UNI|AAVE|MATIC|AVAX|LTC|BCH|XLM|ATOM)\b',
             r'\b(Bitcoin|bitcoin|Ethereum|ethereum|etherium|Solana|solana|Dogecoin|dogecoin)\b',
             r'\b(Cardano|cardano|Polkadot|polkadot|Chainlink|chainlink|Uniswap|uniswap)\b',
             r'\b(Polygon|polygon|matic|Avalanche|avalanche|avax|Litecoin|litecoin)\b',
+            r'Get[_\s]+(\w+)[_\s]+price',  # Handle "Get_BTC_price_data"
+            r'(\w+)[_\s]+price[_\s]+data',  # Handle "BTC_price_data"
             r'index\s+(\w+)',
             r'for\s+(\w+)',
             r'(\w+)\s+price',
@@ -66,6 +70,8 @@ EXAMPLES:
             match = re.search(pattern, query, re.IGNORECASE)
             if match:
                 index = match.group(1).upper()
+                print(f"✅ Found crypto symbol: '{index}' using pattern: '{pattern}'")
+                
                 # Convert full names and typos to abbreviations
                 name_mapping = {
                     "BITCOIN": "BTC",
@@ -81,8 +87,12 @@ EXAMPLES:
                     "AVALANCHE": "AVAX",
                     "LITECOIN": "LTC"
                 }
-                result["index"] = name_mapping.get(index, index)
+                final_symbol = name_mapping.get(index, index)
+                result["index"] = final_symbol
+                print(f"🎯 Final symbol after mapping: '{final_symbol}'")
                 break
+        else:
+            print(f"❌ No crypto symbol found in query, using default: COIN50")
                 
         # Parse granularity
         if any(word in query.lower() for word in ["hour", "hourly", "hrs"]):

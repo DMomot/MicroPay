@@ -415,8 +415,7 @@ function App() {
         <header className="header">
           <div className="header-content">
             <div className="header-text">
-              <h1>AI Agent Finder</h1>
-              <p>Powered by Gemini</p>
+              <h1>Chat agent by MicroPay</h1>
             </div>
           </div>
         </header>
